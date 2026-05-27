@@ -16,8 +16,8 @@ export default defineConfig({
         short_name: 'Figurama',
         description:
           'Marque suas figurinhas da Copa 2026, ache trocas perfeitas e complete seu álbum.',
-        theme_color: '#FF6B2C',
-        background_color: '#FFF8F0',
+        theme_color: '#eef1f4',
+        background_color: '#eef1f4',
         display: 'standalone',
         orientation: 'portrait',
         lang: 'pt-BR',

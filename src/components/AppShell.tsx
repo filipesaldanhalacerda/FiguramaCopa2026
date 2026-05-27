@@ -6,7 +6,7 @@ export default function AppShell() {
   const loc = useLocation();
   return (
     <div className="mx-auto min-h-[100svh] max-w-md">
-      <main className="px-4 pb-28 pt-4 safe-top">
+      <main className="px-4 pb-28 pt-6 safe-top">
         <AnimatePresence mode="wait">
           <motion.div
             key={loc.pathname}
