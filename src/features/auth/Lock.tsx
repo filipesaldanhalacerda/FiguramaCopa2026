@@ -8,6 +8,7 @@ import { tapHaptic } from '../../lib/haptics';
 export default function Lock() {
   const profile = useStore((s) => s.profile)!;
   const unlockSession = useStore((s) => s.unlockSession);
+  const resetAll = useStore((s) => s.resetAll);
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
 
@@ -28,27 +29,35 @@ export default function Lock() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col items-center px-6 pt-16 safe-top">
-      <Avatar avatar={profile.avatar} size={84} />
-      <h1 className="font-display font-800 text-3xl mt-4 uppercase tracking-wide">Oi de novo,</h1>
-      <p className="font-display font-800 text-2xl text-brand-600 uppercase">{profile.displayName}</p>
-      <p className="text-ink-soft font-600 mt-2">Digite seu PIN para entrar</p>
+    <div className="flex min-h-[100svh] flex-col items-center justify-center px-6 safe-top safe-bottom">
+      <div className="w-full max-w-xs flex flex-col items-center">
+        <Avatar avatar={profile.avatar} size={84} />
+        <h1 className="font-display font-800 text-2xl mt-4 uppercase tracking-wide leading-none">Oi de novo,</h1>
+        <p className="font-display font-800 text-2xl text-brand-600 uppercase">{profile.displayName}</p>
+        <p className="text-ink-soft font-600 mt-2">Digite seu PIN para entrar</p>
 
-      <motion.div animate={error ? { x: [0, -10, 10, -6, 6, 0] } : {}} transition={{ duration: 0.4 }}
-        className="flex justify-center gap-3 my-7">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className={`h-5 w-5 rounded-full border-2 ${
-            error ? 'border-[var(--color-magenta)]' : i < pin.length ? 'bg-brand-500 border-brand-500' : 'border-brand-200'
-          }`} />
-        ))}
-      </motion.div>
-      {error && <p className="font-700 text-[var(--color-magenta)] -mt-3 mb-2">PIN incorreto, tente de novo.</p>}
+        <motion.div animate={error ? { x: [0, -10, 10, -6, 6, 0] } : {}} transition={{ duration: 0.4 }}
+          className="flex justify-center gap-3 my-7">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className={`h-5 w-5 rounded-full border-2 ${
+              error ? 'border-[var(--color-magenta)]' : i < pin.length ? 'bg-brand-500 border-brand-500' : 'border-brand-200'
+            }`} />
+          ))}
+        </motion.div>
+        {error && <p className="font-700 text-[var(--color-magenta)] -mt-4 mb-3">PIN incorreto, tente de novo.</p>}
 
-      <div className="grid grid-cols-3 gap-3 w-full max-w-xs">
-        {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => <Key key={d} onClick={() => press(d)}>{d}</Key>)}
-        <div />
-        <Key onClick={() => press('0')}>0</Key>
-        <Key onClick={() => press('del')}><Icon name="back" size={22} /></Key>
+        <div className="grid grid-cols-3 gap-3 w-full">
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => <Key key={d} onClick={() => press(d)}>{d}</Key>)}
+          <div />
+          <Key onClick={() => press('0')}>0</Key>
+          <Key onClick={() => press('del')}><Icon name="back" size={22} /></Key>
+        </div>
+
+        <button
+          onClick={() => { if (confirm('Trocar de conta apaga esta conta e a coleção deste aparelho. Continuar?')) resetAll(); }}
+          className="mt-7 font-700 text-ink-soft text-sm">
+          Trocar de conta
+        </button>
       </div>
     </div>
   );

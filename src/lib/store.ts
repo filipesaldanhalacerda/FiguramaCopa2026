@@ -146,7 +146,7 @@ export const useStore = create<State>((set, get) => ({
   resetAll: async () => {
     await db.delete();
     await db.open();
-    set({ profile: null, counts: {}, settings: DEFAULT_SETTINGS });
+    set({ profile: null, locked: false, counts: {}, settings: DEFAULT_SETTINGS });
     await get().hydrate();
   },
 
