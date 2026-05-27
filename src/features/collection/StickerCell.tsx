@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useRef } from 'react';
 import type { Sticker } from '../../data/stickers';
 import { tapHaptic, popSound } from '../../lib/haptics';
+import PlayerPhoto from '../../components/PlayerPhoto';
 
 interface Props {
   sticker: Sticker;
@@ -48,19 +49,38 @@ export default function StickerCell({ sticker, count, batch, onTap, onLongPress 
       onPointerLeave={end}
       onClick={click}
       aria-label={`Figurinha ${sticker.id} ${sticker.label}. ${have ? (dupes ? `tenho, ${dupes} repetidas` : 'tenho') : 'falta'}`}
-      className={`relative grid aspect-[3/4] place-items-center rounded-2xl border-2 transition-colors ${
+      className={`relative grid aspect-[3/4] place-items-center overflow-hidden rounded-2xl border-2 transition-colors ${
         have
           ? 'bg-[var(--color-have)]/12 border-[var(--color-have)]'
           : 'border-dashed border-[var(--color-missing)] bg-paper'
       }`}
     >
-      {/* número grande */}
-      <span className={`font-display font-800 text-2xl leading-none ${have ? 'text-[var(--color-have)]' : 'text-ink-soft/60'}`}>
-        {sticker.id}
-      </span>
-      <span className="absolute bottom-1 left-1 right-1 truncate text-center text-[9px] font-700 text-ink-soft/70">
-        {sticker.label}
-      </span>
+      {sticker.person ? (
+        <>
+          {/* foto do jogador (Wikipédia, licença livre) */}
+          <div className={`absolute inset-0 ${have ? '' : 'opacity-45 grayscale'}`}>
+            <PlayerPhoto name={sticker.person} flag={sticker.flag} rounded="rounded-none" />
+          </div>
+          {/* faixa com o nome embaixo */}
+          <span className="absolute bottom-0 left-0 right-0 truncate bg-ink/70 px-1 py-0.5 text-center text-[9px] font-700 text-white">
+            {sticker.label}
+          </span>
+          {/* número no canto */}
+          <span className="absolute left-1 top-1 grid h-6 min-w-6 place-items-center rounded-full bg-paper/90 px-1 font-800 text-[11px] text-ink">
+            {sticker.id}
+          </span>
+        </>
+      ) : (
+        <>
+          {/* número grande (sem foto) */}
+          <span className={`font-display font-800 text-2xl leading-none ${have ? 'text-[var(--color-have)]' : 'text-ink-soft/60'}`}>
+            {sticker.id}
+          </span>
+          <span className="absolute bottom-1 left-1 right-1 truncate text-center text-[9px] font-700 text-ink-soft/70">
+            {sticker.label}
+          </span>
+        </>
+      )}
 
       {/* estado: tem */}
       {have && (

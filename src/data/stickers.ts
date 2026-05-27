@@ -29,6 +29,8 @@ export interface Sticker {
   section: string;
   type: StickerType;
   label: string;
+  /** nome do jogador identificado (só quando é um craque real) → habilita foto */
+  person?: string;
   /** time dono da figurinha (undefined nas especiais) */
   teamCode?: string;
   flag?: string;
@@ -79,6 +81,7 @@ function buildStickers(): Sticker[] {
       const slot = i + 1;
       let type: StickerType;
       let label: string;
+      let person: string | undefined;
       if (slot === 1) {
         type = 'badge';
         label = `Escudo • ${team.name}`;
@@ -90,6 +93,7 @@ function buildStickers(): Sticker[] {
         const playerIdx = slot - 3; // 0..17
         const craque = team.craques[playerIdx];
         label = craque ?? `Jogador ${playerIdx + 1}`;
+        person = craque; // só quando identificado → habilita foto da Wikipédia
       }
       list.push({
         id: n,
@@ -97,6 +101,7 @@ function buildStickers(): Sticker[] {
         section: team.code,
         type,
         label,
+        person,
         teamCode: team.code,
         flag: team.flag,
         group: team.group,
