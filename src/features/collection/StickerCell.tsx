@@ -47,6 +47,7 @@ export default function StickerCell({ sticker, count, batch, onTap, onLongPress,
   const slotClass = have ? (sticker.shiny ? 'slot slot--foil' : 'slot slot--filled') : 'slot slot--empty';
 
   // número oficial: dentro de um time mostramos a posição (1..20); nas especiais o código.
+  const isSpecial = sticker.type === 'special';
   const num = sticker.slot != null ? String(sticker.slot) : sticker.code;
   const numPx = num.length <= 2 ? 28 : num.length === 3 ? 21 : 16;
 
@@ -68,7 +69,13 @@ export default function StickerCell({ sticker, count, batch, onTap, onLongPress,
       className={slotClass}
       style={{ ['--tc' as string]: tc }}
     >
-      {have ? (
+      {isSpecial ? (
+        <span className="absolute inset-0 flex flex-col items-center justify-center px-1 text-center"
+          style={{ color: have ? '#3a2a06' : '#9aa3b2' }}>
+          <span className="font-display font-800 tnum leading-none" style={{ fontSize: 13 }}>{sticker.code}</span>
+          <span className="mt-0.5 text-[8.5px] font-700 leading-tight line-clamp-2">{sticker.label}</span>
+        </span>
+      ) : have ? (
         <span className="absolute inset-0 flex flex-col items-center justify-center" style={{ color: ink }}>
           <span className="font-display font-800 leading-none tnum drop-shadow-sm" style={{ fontSize: numPx }}>{num}</span>
         </span>

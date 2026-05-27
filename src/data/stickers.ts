@@ -49,17 +49,24 @@ export interface AlbumSection {
 
 // --- seção de abertura + FIFA Museum (20 figurinhas) ---
 interface SpecialDef { code: string; label: string }
+// FIFA Museum (FWC9..FWC19): seleções campeãs da história, conforme a checklist oficial.
+const MUSEUM: string[] = [
+  'Itália 1934', 'Uruguai 1950', 'Alemanha Ocid. 1954', 'Brasil 1962',
+  'Alemanha Ocid. 1974', 'Argentina 1986', 'Brasil 1994', 'Brasil 2002',
+  'Itália 2006', 'Alemanha 2014', 'Argentina 2022',
+];
+
 const SPECIALS: SpecialDef[] = [
   { code: '00', label: 'Logo Panini' },
-  { code: 'FWC1', label: 'Emblema Oficial' },
-  { code: 'FWC2', label: 'Emblema Oficial' },
-  { code: 'FWC3', label: 'Mascotes Oficiais' },
-  { code: 'FWC4', label: 'Slogan Oficial' },
+  { code: 'FWC1', label: 'Emblema' },
+  { code: 'FWC2', label: 'Emblema' },
+  { code: 'FWC3', label: 'Mascotes' },
+  { code: 'FWC4', label: 'Slogan' },
   { code: 'FWC5', label: 'Bola Oficial' },
-  { code: 'FWC6', label: 'Sedes — Canadá' },
-  { code: 'FWC7', label: 'Sedes — México' },
-  { code: 'FWC8', label: 'Sedes — EUA' },
-  ...Array.from({ length: 11 }, (_, i) => ({ code: `FWC${9 + i}`, label: 'FIFA Museum' })),
+  { code: 'FWC6', label: 'Sede Canadá' },
+  { code: 'FWC7', label: 'Sede México' },
+  { code: 'FWC8', label: 'Sede EUA' },
+  ...MUSEUM.map((label, i) => ({ code: `FWC${9 + i}`, label })),
 ];
 
 function buildStickers(): Sticker[] {
