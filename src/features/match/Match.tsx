@@ -130,14 +130,14 @@ export default function Match() {
   );
 }
 
-function TradeColumn({ title, color, stickers }: { title: string; color: string; stickers: { id: number }[] }) {
+function TradeColumn({ title, color, stickers }: { title: string; color: string; stickers: { id: number; code: string }[] }) {
   return (
     <div>
       <p className="font-700 mb-2 uppercase tracking-wide text-sm" style={{ color }}>{title} ({stickers.length})</p>
       <div className="flex flex-wrap gap-2">
         {stickers.map((s) => (
           <span key={s.id} className="rounded-md border-2 px-2.5 py-1 font-700 text-sm tnum" style={{ borderColor: color, color }}>
-            {s.id}
+            {s.code}
           </span>
         ))}
         {stickers.length === 0 && <span className="text-ink-soft font-600">nenhuma ainda</span>}

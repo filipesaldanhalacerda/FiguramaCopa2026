@@ -1,132 +1,133 @@
 /**
- * Checklist do álbum Panini Copa 2026 — 980 figurinhas.
- * Estrutura espelhando o álbum físico para a criança marcar olhando a página:
- *   - Seção "Especiais" (intro, mascotes, troféu, sedes): nº 1–20
- *   - 48 seleções × 20 figurinhas (escudo + foto do time + 18 jogadores): nº 21–980
+ * Checklist do álbum Panini Copa 2026 — 980 figurinhas, com a NUMERAÇÃO OFICIAL.
+ * Fonte da estrutura: checklist público da coleção (numeração = dado factual).
  *
- * Gerado proceduralmente a partir de TEAMS. A numeração é estável (não muda
- * entre versões enquanto a lista de times não mudar). Nomes de jogadores são
- * provisórios — a escalação oficial sai em junho/2026.
+ *   - Abertura foil (9): "00" (logo Panini) + FWC1..FWC8 (emblema, mascotes,
+ *     slogan, bola, sedes Canadá/México/EUA).
+ *   - FIFA Museum (11): FWC9..FWC19 (seleções campeãs do mundo).
+ *   - 48 seleções × 20: código por time "MEX1".."MEX20" — escudo (foil),
+ *     18 jogadores e foto do time. Times na ordem dos grupos A–L.
  *
- * Para sincronizar com a numeração EXATA da Panini, ajuste SPECIALS_COUNT e a
- * ordem de TEAMS conforme o álbum oficial. Versão do checklist: v1.
+ * `id` (1..980) é a chave interna estável (coleção/IndexedDB/match).
+ * `code` é o número OFICIAL mostrado ao usuário (ex.: "MEX5", "FWC9", "00").
  */
 import { TEAMS, type GroupId } from './worldcup2026';
 
-export const CHECKLIST_VERSION = 'v1';
-export const SPECIALS_COUNT = 20;
-export const PER_TEAM = 20; // 1 escudo + 1 foto do time + 18 jogadores
-export const TOTAL = SPECIALS_COUNT + TEAMS.length * PER_TEAM; // 20 + 960 = 980
+export const CHECKLIST_VERSION = 'v2-oficial';
+export const SPECIALS_COUNT = 20; // 9 abertura + 11 FIFA Museum
+export const PER_TEAM = 20;       // escudo + 18 jogadores + foto do time
+export const TOTAL = SPECIALS_COUNT + TEAMS.length * PER_TEAM; // 980
 
 export type StickerType = 'special' | 'badge' | 'team_photo' | 'player';
 
 export interface Sticker {
-  /** número oficial no álbum (1..980) */
+  /** chave interna sequencial (1..980) */
   id: number;
-  /** código curto, ex: "BRA-07" ou "ESP-01" */
+  /** número OFICIAL do álbum, mostrado ao usuário (ex.: "MEX5", "FWC9", "00") */
   code: string;
-  /** chave da seção: 'especiais' ou o código do time */
+  /** posição na página do time (1..20); ausente nas especiais */
+  slot?: number;
+  /** seção: 'especiais' ou o código do time */
   section: string;
   type: StickerType;
   label: string;
-  /** time dono da figurinha (undefined nas especiais) */
+  /** jogador identificado (craque) — apenas quando conhecido */
+  person?: string;
   teamCode?: string;
-  flag?: string;
   group?: GroupId;
-  /** figurinhas raras/brilhantes (escudos e especiais), só visual */
+  /** acabamento foil (escudos e abertura) */
   shiny: boolean;
 }
 
 export interface AlbumSection {
   key: string;
   title: string;
-  flag?: string;
   group?: GroupId;
-  /** intervalo [start, end] de números no álbum */
   range: [number, number];
   count: number;
 }
 
-const SPECIAL_LABELS = [
-  'Logo da Copa 2026', 'Troféu da Copa', 'Mascote — EUA', 'Mascote — México',
-  'Mascote — Canadá', 'Bola Oficial', 'Pôster do Torneio', 'Cidade-sede',
-  'Cidade-sede', 'Cidade-sede', 'Estádio da Final', 'Estádio da Abertura',
-  'Momento Histórico', 'Momento Histórico', 'Lenda da Copa', 'Lenda da Copa',
-  'Lenda da Copa', 'Brasão FIFA', 'Fan Festival', 'Página de Abertura',
+// --- seção de abertura + FIFA Museum (20 figurinhas) ---
+interface SpecialDef { code: string; label: string }
+const SPECIALS: SpecialDef[] = [
+  { code: '00', label: 'Logo Panini' },
+  { code: 'FWC1', label: 'Emblema Oficial' },
+  { code: 'FWC2', label: 'Emblema Oficial' },
+  { code: 'FWC3', label: 'Mascotes Oficiais' },
+  { code: 'FWC4', label: 'Slogan Oficial' },
+  { code: 'FWC5', label: 'Bola Oficial' },
+  { code: 'FWC6', label: 'Sedes — Canadá' },
+  { code: 'FWC7', label: 'Sedes — México' },
+  { code: 'FWC8', label: 'Sedes — EUA' },
+  ...Array.from({ length: 11 }, (_, i) => ({ code: `FWC${9 + i}`, label: 'FIFA Museum' })),
 ];
 
 function buildStickers(): Sticker[] {
   const list: Sticker[] = [];
-  let n = 0;
+  let id = 0;
 
-  // Seção especiais
-  for (let i = 0; i < SPECIALS_COUNT; i++) {
-    n++;
-    list.push({
-      id: n,
-      code: `ESP-${String(i + 1).padStart(2, '0')}`,
-      section: 'especiais',
-      type: 'special',
-      label: SPECIAL_LABELS[i] ?? `Especial ${i + 1}`,
-      shiny: true,
-    });
+  for (const sp of SPECIALS) {
+    id++;
+    list.push({ id, code: sp.code, section: 'especiais', type: 'special', label: sp.label, shiny: true });
   }
 
-  // Times (ordem A–L conforme TEAMS)
   for (const team of TEAMS) {
-    for (let i = 0; i < PER_TEAM; i++) {
-      n++;
-      const slot = i + 1;
+    for (let slot = 1; slot <= PER_TEAM; slot++) {
+      id++;
       let type: StickerType;
       let label: string;
+      let person: string | undefined;
       if (slot === 1) {
         type = 'badge';
         label = `Escudo • ${team.name}`;
-      } else if (slot === 2) {
+      } else if (slot === PER_TEAM) {
         type = 'team_photo';
         label = `Foto do time • ${team.name}`;
       } else {
         type = 'player';
-        const playerIdx = slot - 3; // 0..17
-        const craque = team.craques[playerIdx];
-        label = craque ?? `Jogador ${playerIdx + 1}`;
+        const idx = slot - 2; // 0..17
+        person = team.craques[idx];
+        label = person ?? `Jogador ${idx + 1}`;
       }
       list.push({
-        id: n,
-        code: `${team.code}-${String(slot).padStart(2, '0')}`,
+        id,
+        code: `${team.code}${slot}`,
+        slot,
         section: team.code,
         type,
         label,
+        person,
         teamCode: team.code,
-        flag: team.flag,
         group: team.group,
         shiny: type === 'badge',
       });
     }
   }
-
   return list;
 }
 
 export const STICKERS: Sticker[] = buildStickers();
 
-const stickerById = new Map(STICKERS.map((s) => [s.id, s]));
-export const getSticker = (id: number): Sticker | undefined => stickerById.get(id);
+const byId = new Map(STICKERS.map((s) => [s.id, s]));
+export const getSticker = (id: number): Sticker | undefined => byId.get(id);
+
+const byCode = new Map(STICKERS.map((s) => [s.code.replace(/\s/g, '').toUpperCase(), s]));
+/** Busca uma figurinha pelo número oficial digitado (ex.: "mex5", "FWC9", "00"). */
+export const findByCode = (q: string): Sticker | undefined =>
+  byCode.get(q.replace(/\s/g, '').toUpperCase());
 
 export const SECTIONS: AlbumSection[] = (() => {
   const sections: AlbumSection[] = [
     { key: 'especiais', title: 'Especiais', range: [1, SPECIALS_COUNT], count: SPECIALS_COUNT },
   ];
   for (const team of TEAMS) {
-    const teamStickers = STICKERS.filter((s) => s.section === team.code);
-    const ids = teamStickers.map((s) => s.id);
+    const ids = STICKERS.filter((s) => s.section === team.code).map((s) => s.id);
     sections.push({
       key: team.code,
       title: team.name,
-      flag: team.flag,
       group: team.group,
       range: [Math.min(...ids), Math.max(...ids)],
-      count: teamStickers.length,
+      count: ids.length,
     });
   }
   return sections;

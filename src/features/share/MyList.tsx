@@ -53,8 +53,8 @@ export default function MyList() {
       <Sheet open={tv} onClose={() => setTv(false)} title={tab === 'dupe' ? 'Minhas repetidas' : 'Me faltam'}>
         <div className="flex flex-wrap gap-x-3 gap-y-1 justify-center pb-4">
           {list.map((s) => (
-            <span key={s.id} className="font-display font-800 text-3xl tnum" style={{ color: tab === 'dupe' ? 'var(--color-dupe)' : 'var(--color-ink)' }}>
-              {s.id}{tab === 'dupe' && (counts[s.id] ?? 0) > 2 ? <sub className="text-base">x{(counts[s.id] ?? 0) - 1}</sub> : ''}
+            <span key={s.id} className="font-display font-800 text-2xl tnum" style={{ color: tab === 'dupe' ? 'var(--color-dupe)' : 'var(--color-ink)' }}>
+              {s.code}{tab === 'dupe' && (counts[s.id] ?? 0) > 2 ? <sub className="text-base">x{(counts[s.id] ?? 0) - 1}</sub> : ''}
             </span>
           ))}
           {list.length === 0 && <p className="text-ink-soft font-600">Nada aqui ainda.</p>}
@@ -79,7 +79,7 @@ export default function MyList() {
 }
 
 function NumberCloud({ list, color, counts, showDupe }: {
-  list: { id: number }[]; color: string; counts: Record<number, number>; showDupe: boolean;
+  list: { id: number; code: string }[]; color: string; counts: Record<number, number>; showDupe: boolean;
 }) {
   if (list.length === 0) {
     return <p className="text-center text-ink-soft font-600 py-8">Nada aqui ainda — marque suas figurinhas no álbum.</p>;
@@ -91,7 +91,7 @@ function NumberCloud({ list, color, counts, showDupe }: {
           const extra = showDupe ? (counts[s.id] ?? 0) - 1 : 0;
           return (
             <span key={s.id} className="rounded-md border-2 px-2.5 py-1 font-700 tnum" style={{ borderColor: color, color }}>
-              {s.id}{extra > 1 ? ` x${extra}` : ''}
+              {s.code}{extra > 1 ? ` x${extra}` : ''}
             </span>
           );
         })}

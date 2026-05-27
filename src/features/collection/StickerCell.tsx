@@ -45,6 +45,10 @@ export default function StickerCell({ sticker, count, batch, onTap, onLongPress 
 
   const slotClass = have ? (sticker.shiny ? 'slot slot--foil' : 'slot slot--filled') : 'slot slot--empty';
 
+  // número oficial: dentro de um time mostramos a posição (1..20); nas especiais o código.
+  const num = sticker.slot != null ? String(sticker.slot) : sticker.code;
+  const numPx = num.length <= 2 ? 28 : num.length === 3 ? 21 : 16;
+
   return (
     <motion.button
       whileTap={{ scale: 0.93 }}
@@ -52,17 +56,17 @@ export default function StickerCell({ sticker, count, batch, onTap, onLongPress 
       onPointerUp={end}
       onPointerLeave={end}
       onClick={click}
-      aria-label={`Figurinha ${sticker.id}, ${sticker.label}. ${have ? (dupes ? `tem, ${dupes} repetidas` : 'tem') : 'falta'}`}
+      aria-label={`Figurinha ${sticker.code}, ${sticker.label}. ${have ? (dupes ? `tem, ${dupes} repetidas` : 'tem') : 'falta'}`}
       className={slotClass}
       style={{ ['--tc' as string]: tc }}
     >
       {have ? (
         <span className="absolute inset-0 flex flex-col items-center justify-center" style={{ color: ink }}>
-          <span className="font-display font-800 text-[28px] leading-none tnum drop-shadow-sm">{sticker.id}</span>
+          <span className="font-display font-800 leading-none tnum drop-shadow-sm" style={{ fontSize: numPx }}>{num}</span>
         </span>
       ) : (
         <span className="absolute inset-0 flex flex-col items-center justify-center text-[#9aa3b2]">
-          <span className="font-display font-700 text-[24px] leading-none tnum">{sticker.id}</span>
+          <span className="font-display font-700 leading-none tnum" style={{ fontSize: numPx }}>{num}</span>
         </span>
       )}
 

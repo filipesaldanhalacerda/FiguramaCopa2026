@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore, statsFromCounts } from '../../lib/store';
-import { SECTIONS, getSticker } from '../../data/stickers';
+import { SECTIONS, findByCode } from '../../data/stickers';
 import { GROUPS, getTeamColor } from '../../data/worldcup2026';
 import { Card } from '../../components/ui';
 import { Icon } from '../../components/icons';
@@ -15,8 +15,12 @@ export default function Album() {
 
   function goToNumber(e: React.FormEvent) {
     e.preventDefault();
-    const s = getSticker(Number(jump));
+    const q = jump.trim();
+    // aceita código oficial (MEX5, FWC9, 00) ou só a sigla do time (BRA)
+    const s = findByCode(q);
+    const sectionByCode = SECTIONS.find((x) => x.key.toUpperCase() === q.replace(/\s/g, '').toUpperCase());
     if (s) nav(`/album/${s.section}`);
+    else if (sectionByCode) nav(`/album/${sectionByCode.key}`);
     setJump('');
   }
 
@@ -45,9 +49,9 @@ export default function Album() {
         <div className="flex flex-1 items-center gap-2 rounded-xl border-2 border-line bg-paper px-3">
           <Icon name="search" size={18} className="text-ink-soft" />
           <input
-            value={jump} onChange={(e) => setJump(e.target.value.replace(/\D/g, ''))}
-            inputMode="numeric" placeholder="Ir para o número…"
-            className="flex-1 bg-transparent py-3 font-600 outline-none tnum"
+            value={jump} onChange={(e) => setJump(e.target.value.slice(0, 8))}
+            placeholder="Buscar nº (ex.: MEX5, FWC9)…"
+            className="flex-1 bg-transparent py-3 font-600 outline-none uppercase"
           />
         </div>
         <button className="rounded-xl bg-brand-500 px-5 font-700 text-white">Ir</button>

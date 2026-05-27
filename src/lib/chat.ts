@@ -53,8 +53,8 @@ async function maybeDemoReply(chatId: string): Promise<void> {
 }
 
 export function tradeSummary(iGet: Sticker[], iGive: Sticker[]): string {
-  const g = iGet.map((s) => `${s.id}`).join(', ') || '—';
-  const v = iGive.map((s) => `${s.id}`).join(', ') || '—';
+  const g = iGet.map((s) => s.code).join(', ') || '—';
+  const v = iGive.map((s) => s.code).join(', ') || '—';
   return `Proposta de troca\nVocê recebe: ${g}\nVocê dá: ${v}`;
 }
 

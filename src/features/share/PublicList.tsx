@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { kvGet, loadCollection } from '../../lib/db';
 import type { Profile } from '../../lib/store';
-import { STICKERS } from '../../data/stickers';
+import { STICKERS, getSticker } from '../../data/stickers';
 import { getTeam } from '../../data/worldcup2026';
 import { isBackendEnabled, supabase } from '../../lib/supabase';
 import { Button } from '../../components/ui';
@@ -74,8 +74,10 @@ export default function PublicList() {
         </div>
       </header>
 
-      <Block title="Tenho repetidas (pra trocar)" color="var(--color-dupe)" items={data.dupes.map((d) => `${d.id}${d.n > 1 ? ` x${d.n}` : ''}`)} />
-      <Block title="Me faltam" color="var(--color-ink-soft)" items={data.missing.map(String)} />
+      <Block title="Tenho repetidas (pra trocar)" color="var(--color-dupe)"
+        items={data.dupes.map((d) => `${getSticker(d.id)?.code ?? d.id}${d.n > 1 ? ` x${d.n}` : ''}`)} />
+      <Block title="Me faltam" color="var(--color-ink-soft)"
+        items={data.missing.map((id) => getSticker(id)?.code ?? String(id))} />
 
       <div className="mt-8 rounded-[var(--radius-card)] bg-brand-500 p-5 text-center text-white">
         <p className="font-display font-800 text-xl uppercase tracking-wide">Tem figurinhas?</p>

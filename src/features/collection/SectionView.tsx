@@ -121,7 +121,7 @@ export default function SectionView() {
       </div>
 
       {/* stepper de repetidas */}
-      <Sheet open={!!editing} onClose={() => setEditing(null)} title={editing ? `Figurinha nº ${editing.id}` : ''}>
+      <Sheet open={!!editing} onClose={() => setEditing(null)} title={editing ? `Figurinha ${editing.code}` : ''}>
         {editing && (
           <StepperSheet
             sticker={editing}
