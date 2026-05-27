@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore, countsToMap } from '../../lib/store';
 import { db, type PeerRow } from '../../lib/db';
-import { computeMatches, computeWishlist, matchQuality, type MatchResult } from '../../lib/match';
+import { computeMatches, computeWishlist, matchQuality, proposeTrade, type MatchResult } from '../../lib/match';
 import { getTeam } from '../../data/worldcup2026';
 import { Card, Button, Sheet, EmptyState } from '../../components/ui';
 import { Icon } from '../../components/icons';
@@ -22,8 +22,9 @@ export default function Match() {
   const wishlist = useMemo(() => computeWishlist(mine, peers), [mine, peers]);
 
   async function startTrade(m: MatchResult) {
+    const p = proposeTrade(m);
     const chatId = await ensureChat(m.peer);
-    await sendMessage(chatId, tradeSummary(m.iGet, m.iGive));
+    await sendMessage(chatId, tradeSummary(p.give, p.get));
     nav(`/chat/${chatId}`);
   }
 
@@ -35,14 +36,15 @@ export default function Match() {
       </header>
 
       <p className="text-ink-soft font-600 -mt-1">
-        Encontramos quem combina com a sua coleção. Quanto mais você marca, melhores as trocas.
+        Trocas justas: você dá a mesma quantidade que recebe. Marque mais repetidas para trocas maiores.
       </p>
 
       {matches.length > 0 && (
         <section className="space-y-3">
-          <h2 className="font-display font-800 text-xl uppercase tracking-wide">Trocas perfeitas</h2>
+          <h2 className="font-display font-800 text-xl uppercase tracking-wide">Trocas justas</h2>
           {matches.map((m) => {
             const q = matchQuality(m);
+            const p = proposeTrade(m);
             const t = getTeam(m.peer.favTeam);
             return (
               <Card key={m.peer.id} className="p-4">
@@ -60,23 +62,20 @@ export default function Match() {
                     {m.peer.city && <p className="text-xs text-ink-soft font-600 mt-0.5">{m.peer.city}</p>}
                   </div>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-center">
-                  <div className="rounded-lg bg-[var(--color-have)]/10 py-2">
-                    <div className="font-display font-800 text-xl text-[var(--color-have)] tnum">{m.iGet.length}</div>
-                    <div className="text-[11px] font-600 text-ink-soft uppercase">vêm pra você</div>
-                  </div>
-                  <div className="rounded-lg bg-[var(--color-sky-fest)]/10 py-2">
-                    <div className="font-display font-800 text-xl text-[var(--color-sky-fest)] tnum">{m.iGive.length}</div>
-                    <div className="text-[11px] font-600 text-ink-soft uppercase">vão pra ele</div>
-                  </div>
+
+                {/* troca justa em destaque */}
+                <div className="mt-3 rounded-xl bg-brand-50 px-4 py-3 text-center">
+                  <p className="font-display font-800 text-xl text-brand-700 tnum">
+                    Troca justa: {p.size} por {p.size}
+                  </p>
+                  <p className="text-sm font-600 text-ink-soft mt-0.5">
+                    {m.peer.name} tem {m.iGet.length} que te faltam
+                  </p>
                 </div>
-                <p className="mt-3 text-center font-600">
-                  {m.peer.name} tem <b className="text-[var(--color-have)] tnum">{m.iGet.length}</b> que você precisa
-                  {' '}e quer <b className="text-[var(--color-sky-fest)] tnum">{m.iGive.length}</b> que você tem.
-                </p>
+
                 <div className="mt-3 flex gap-2">
                   <Button variant="soft" className="flex-1" onClick={() => setOpen(m)}>Ver figurinhas</Button>
-                  <Button className="flex-1" onClick={() => startTrade(m)}>Trocar</Button>
+                  <Button className="flex-1" onClick={() => startTrade(m)}>Propor troca</Button>
                 </div>
               </Card>
             );
@@ -91,7 +90,7 @@ export default function Match() {
           </h2>
           {matches.length === 0 && (
             <p className="rounded-lg bg-brand-50 px-4 py-3 text-sm font-600 text-brand-700">
-              Dica: marque suas <b>repetidas</b> no álbum para desbloquear trocas perfeitas (vão e vêm).
+              Dica: marque suas <b>repetidas</b> no álbum (toque no +) para desbloquear trocas justas.
             </p>
           )}
           {wishlist.slice(0, 8).map((w) => {
@@ -117,15 +116,27 @@ export default function Match() {
         <EmptyState icon="search" title="Ainda sem trocas" hint="Marque o que você tem e o que falta no Meu Álbum para começar." />
       )}
 
+      {/* detalhe da troca (equilibrada) */}
       <Sheet open={!!open} onClose={() => setOpen(null)} title={open ? `Troca com ${open.peer.name}` : ''}>
-        {open && (
-          <div className="space-y-4">
-            <TradeColumn title="Vêm pra você" color="var(--color-have)" stickers={open.iGet} />
-            <TradeColumn title="Vão pra ele" color="var(--color-sky-fest)" stickers={open.iGive} />
-            <Button full size="lg" onClick={() => { startTrade(open); setOpen(null); }}>Combinar essa troca</Button>
-          </div>
-        )}
+        {open && <TradeDetail m={open} onConfirm={() => { startTrade(open); setOpen(null); }} />}
       </Sheet>
+    </div>
+  );
+}
+
+function TradeDetail({ m, onConfirm }: { m: MatchResult; onConfirm: () => void }) {
+  const p = proposeTrade(m);
+  return (
+    <div className="space-y-4">
+      <p className="text-center font-display font-800 text-xl text-brand-700">Troca justa: {p.size} por {p.size}</p>
+      <TradeColumn title="Você dá" color="var(--color-sky-fest)" stickers={p.give} />
+      <TradeColumn title="Você recebe" color="var(--color-have)" stickers={p.get} />
+      {p.moreGet > 0 && (
+        <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm font-600 text-brand-700">
+          {m.peer.name} ainda tem <b>{p.moreGet}</b> que te faltam. Combinem mais trocas no chat!
+        </p>
+      )}
+      <Button full size="lg" onClick={onConfirm}>Propor esta troca</Button>
     </div>
   );
 }
@@ -140,7 +151,7 @@ function TradeColumn({ title, color, stickers }: { title: string; color: string;
             {s.code}
           </span>
         ))}
-        {stickers.length === 0 && <span className="text-ink-soft font-600">nenhuma ainda</span>}
+        {stickers.length === 0 && <span className="text-ink-soft font-600">nenhuma</span>}
       </div>
     </div>
   );

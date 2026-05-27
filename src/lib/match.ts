@@ -61,6 +61,26 @@ export function matchQuality(m: MatchResult): { label: string; stars: number; co
   return { label: 'Boa troca', stars: 1, color: 'var(--color-brand-500)' };
 }
 
+export interface TradeProposal {
+  give: Sticker[]; // o que EU dou (das minhas repetidas)
+  get: Sticker[];  // o que EU recebo
+  size: number;    // troca justa N por N
+  moreGet: number; // figurinhas extras que ele tem e me faltam
+  moreGive: number; // minhas repetidas extras que ele precisa
+}
+
+/** Monta uma troca EQUILIBRADA (N por N), limitada para não virar um monte por 1. */
+export function proposeTrade(m: MatchResult, max = 10): TradeProposal {
+  const k = Math.min(m.iGet.length, m.iGive.length, max);
+  return {
+    give: m.iGive.slice(0, k),
+    get: m.iGet.slice(0, k),
+    size: k,
+    moreGet: Math.max(0, m.iGet.length - k),
+    moreGive: Math.max(0, m.iGive.length - k),
+  };
+}
+
 export interface WishlistMatch {
   peer: PeerRow;
   iGet: Sticker[];
