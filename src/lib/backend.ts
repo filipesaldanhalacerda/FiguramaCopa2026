@@ -108,3 +108,96 @@ export async function backendLogout(): Promise<void> {
   await supabase?.auth.signOut().catch(() => {});
   authedUid = null;
 }
+
+export const getUid = () => authedUid;
+
+/* ---------------------------- MATCH (Etapa 2) ----------------------------- */
+
+export interface BackendMatch {
+  partner_id: string;
+  partner_slug: string;
+  avatar: string;
+  fav_team: string;
+  i_get: number;
+  i_give: number;
+  balance: number;
+}
+
+/** Lista de parceiros reais ordenada por troca equilibrada. */
+export async function fetchMatches(): Promise<BackendMatch[]> {
+  if (!supabase || !authedUid) return [];
+  const { data } = await supabase.rpc('match_partners_ranked', { p_limit: 30 });
+  return (data ?? []) as BackendMatch[];
+}
+
+/** Detalhe da troca com um parceiro: ids das figurinhas que recebo/dou. */
+export async function fetchTradeStickers(partnerId: string): Promise<{ get: number[]; give: number[] }> {
+  if (!supabase) return { get: [], give: [] };
+  const { data } = await supabase.rpc('trade_stickers', { p_partner: partnerId });
+  return (data as { get: number[]; give: number[] }) ?? { get: [], give: [] };
+}
+
+/* ----------------------------- CHAT (Etapa 3) ----------------------------- */
+
+export interface ChatMsg {
+  id: number; chat_id: string; sender_id: string; body: string; is_quick: boolean; created_at: string;
+}
+export interface ChatPeer { id: string; name: string; avatar: string; favTeam: string }
+
+export async function getOrCreateChat(otherId: string): Promise<string | null> {
+  if (!supabase) return null;
+  const { data } = await supabase.rpc('get_or_create_chat', { p_other: otherId });
+  return (data as string) ?? null;
+}
+
+export async function listChats() {
+  if (!supabase || !authedUid) return [];
+  const { data } = await supabase.rpc('my_chats');
+  return (data ?? []) as {
+    chat_id: string; other_id: string; other_slug: string; other_name: string;
+    other_avatar: string; other_fav_team: string; last_body: string | null; last_at: string | null;
+  }[];
+}
+
+export async function loadChatPeer(chatId: string): Promise<ChatPeer | null> {
+  if (!supabase || !authedUid) return null;
+  const { data: chat } = await supabase.from('chats').select('user_a,user_b').eq('id', chatId).single();
+  if (!chat) return null;
+  const other = chat.user_a === authedUid ? chat.user_b : chat.user_a;
+  const { data: p } = await supabase.from('profiles').select('display_name,avatar,fav_team').eq('id', other).single();
+  return p ? { id: other, name: p.display_name, avatar: p.avatar, favTeam: p.fav_team } : null;
+}
+
+export async function loadMessages(chatId: string): Promise<ChatMsg[]> {
+  if (!supabase) return [];
+  const { data } = await supabase.from('messages').select('*').eq('chat_id', chatId).order('created_at');
+  return (data ?? []) as ChatMsg[];
+}
+
+export async function sendChatMessage(chatId: string, body: string, isQuick = false): Promise<void> {
+  if (!supabase || !authedUid) return;
+  await supabase.from('messages').insert({ chat_id: chatId, sender_id: authedUid, body, is_quick: isQuick });
+}
+
+export async function blockUser(otherId: string): Promise<void> {
+  if (!supabase || !authedUid) return;
+  try { await supabase.from('blocks').insert({ blocker_id: authedUid, blocked_id: otherId }); } catch { /* ignora */ }
+}
+
+export async function reportUser(otherId: string, chatId: string, reason = 'denúncia no chat'): Promise<void> {
+  if (!supabase || !authedUid) return;
+  try { await supabase.from('reports').insert({ reporter_id: authedUid, reported_id: otherId, chat_id: chatId, reason }); } catch { /* ignora */ }
+}
+
+/** Assina novas mensagens do chat em tempo real. Retorna função de unsubscribe. */
+export function subscribeMessages(chatId: string, onInsert: (m: ChatMsg) => void): () => void {
+  const sb = supabase;
+  if (!sb) return () => {};
+  const ch = sb
+    .channel(`chat:${chatId}`)
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
+      (payload) => onInsert(payload.new as ChatMsg))
+    .subscribe();
+  return () => { sb.removeChannel(ch); };
+}
