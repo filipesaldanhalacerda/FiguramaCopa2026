@@ -23,6 +23,8 @@ export default function SectionView() {
   const [filter, setFilter] = useState<Filter>('all');
   const [batch, setBatch] = useState(false);
   const [editing, setEditing] = useState<Sticker | null>(null);
+  const [hint, setHint] = useState(() => localStorage.getItem('figurama.hintRep') !== '1');
+  const dismissHint = () => { setHint(false); localStorage.setItem('figurama.hintRep', '1'); };
 
   const meta = SECTIONS.find((s) => s.key === section);
   const team = section !== 'especiais' ? getTeam(section) : undefined;
@@ -105,6 +107,13 @@ export default function SectionView() {
 
       {/* grade de espaços */}
       <div className="album-page px-4 pb-28 pt-2 min-h-[60vh]">
+        {hint && (
+          <div className="mb-3 flex items-start gap-2 rounded-lg bg-brand-50 border border-brand-100 px-3 py-2.5 text-sm font-600 text-brand-700">
+            <span className="shrink-0 text-brand-500 mt-0.5"><Icon name="plus" size={16} strokeWidth={3} /></span>
+            <span className="flex-1">Toque para marcar que você <b>tem</b>. Toque no <b>+</b> da figurinha (ou segure) para somar <b>repetidas</b>.</span>
+            <button onClick={dismissHint} aria-label="Fechar dica" className="shrink-0 text-brand-400"><Icon name="close" size={16} /></button>
+          </div>
+        )}
         <div className="grid grid-cols-4 gap-2.5">
           {list.map((s) => (
             <StickerCell
@@ -114,6 +123,7 @@ export default function SectionView() {
               batch={batch}
               onTap={() => handleTap(s)}
               onLongPress={() => setEditing(s)}
+              onAddDupe={() => setCount(s.id, (counts[s.id] ?? 0) + 1)}
             />
           ))}
         </div>
@@ -138,20 +148,32 @@ export default function SectionView() {
 function StepperSheet({ sticker, count, onSet, onClose }: {
   sticker: Sticker; count: number; onSet: (c: number) => void; onClose: () => void;
 }) {
-  const dupes = count >= 2 ? count - 1 : 0;
+  const have = count >= 1;
+  const rep = Math.max(0, count - 1); // repetidas = extras para trocar (igual ao selo ×N)
   return (
     <div>
       <p className="font-600 text-ink-soft mb-4">{sticker.label}</p>
-      <div className="flex items-center justify-center gap-6">
-        <Button variant="soft" onClick={() => onSet(Math.max(0, count - 1))} aria-label="menos"><Icon name="minus" size={22} /></Button>
-        <div className="text-center min-w-24">
-          <div className="font-display font-800 text-5xl text-brand-600 tnum">{count}</div>
-          <div className="text-sm font-600 text-ink-soft">
-            {count === 0 ? 'falta' : dupes > 0 ? `tem · ${dupes} repetida${dupes > 1 ? 's' : ''}` : 'tem 1'}
-          </div>
-        </div>
-        <Button variant="soft" onClick={() => onSet(count + 1)} aria-label="mais"><Icon name="plus" size={22} /></Button>
+
+      {/* tenho / não tenho */}
+      <div className="grid grid-cols-2 gap-2 mb-5">
+        <Button variant={have ? 'primary' : 'soft'} onClick={() => onSet(Math.max(1, count))}>Tenho</Button>
+        <Button variant={!have ? 'magenta' : 'soft'} onClick={() => onSet(0)}>Não tenho</Button>
       </div>
+
+      {have && (
+        <>
+          <p className="text-center font-700 uppercase tracking-wide text-sm text-ink-soft mb-3">Repetidas para trocar</p>
+          <div className="flex items-center justify-center gap-6">
+            <Button variant="soft" onClick={() => onSet(Math.max(1, count - 1))} disabled={rep === 0} aria-label="tirar uma repetida"><Icon name="minus" size={22} /></Button>
+            <div className="text-center min-w-20">
+              <div className="font-display font-800 text-5xl text-gold-600 tnum">{rep}</div>
+              <div className="text-sm font-600 text-ink-soft">{rep === 0 ? 'nenhuma' : rep === 1 ? '1 para trocar' : `${rep} para trocar`}</div>
+            </div>
+            <Button variant="soft" onClick={() => onSet(count + 1)} aria-label="somar uma repetida"><Icon name="plus" size={22} /></Button>
+          </div>
+        </>
+      )}
+
       <div className="mt-6"><Button full size="lg" onClick={onClose}>Pronto</Button></div>
     </div>
   );
