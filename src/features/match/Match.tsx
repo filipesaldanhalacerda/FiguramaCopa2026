@@ -30,6 +30,23 @@ export default function Match() {
   return isBackendEnabled ? <BackendMatch /> : <LocalMatch />;
 }
 
+/** Aviso quando o usuário não tem repetidas para oferecer numa troca. */
+function NoDupesBanner() {
+  const nav = useNavigate();
+  return (
+    <div className="rounded-lg bg-gold-100 border border-gold-300 px-4 py-3">
+      <p className="flex items-center gap-2 text-sm font-700 text-navy-800">
+        <Icon name="shield" size={16} className="text-gold-600" /> Você ainda não tem repetidas
+      </p>
+      <p className="text-sm font-600 text-navy-800/80 mt-1">
+        Para <b>propor uma troca</b> você precisa ter figurinhas <b>repetidas</b>. Marque-as no álbum
+        (toque no <b>+</b> da figurinha). Sem repetidas, dá só pra conversar.
+      </p>
+      <button onClick={() => nav('/album')} className="mt-2 font-700 text-brand-700">Ir marcar repetidas →</button>
+    </div>
+  );
+}
+
 /* ============================ MATCH REAL (backend) ======================== */
 
 interface OpenTrade { id: string; name: string; avatar: string; favTeam: string; iGet: Sticker[]; iGive: Sticker[] }
@@ -68,6 +85,8 @@ function BackendMatch() {
         <Button variant="soft" onClick={() => nav('/trocar/lista')}><Icon name="stack" size={18} /> Pra trocar</Button>
       </header>
       <p className="text-ink-soft font-600 -mt-1">Pessoas de verdade que combinam com a sua coleção.</p>
+
+      {!Object.values(counts).some((c) => c >= 2) && <NoDupesBanner />}
 
       {rows === null && <p className="text-center text-ink-soft font-600 py-8">Procurando parceiros…</p>}
 
@@ -145,6 +164,8 @@ function LocalMatch() {
         <Button variant="soft" onClick={() => nav('/trocar/lista')}><Icon name="stack" size={18} /> Pra trocar</Button>
       </header>
       <p className="text-ink-soft font-600 -mt-1">Você escolhe quais figurinhas quer dar e receber.</p>
+
+      {!Object.values(counts).some((c) => c >= 2) && <NoDupesBanner />}
 
       {matches.length > 0 && (
         <section className="space-y-3">
@@ -252,7 +273,8 @@ function TradeBuilder({ iGet, iGive, onSend }: { iGet: Sticker[]; iGive: Sticker
         <p className="font-600 text-ink-soft text-sm">Toque para escolher os dois lados.</p>
         <button onClick={suggestFair} className="shrink-0 rounded-full bg-brand-50 px-3 py-1.5 text-sm font-700 text-brand-700 border border-brand-100">Sugerir troca justa</button>
       </div>
-      <SelectBlock title="Você dá" subtitle="suas repetidas que ele precisa" color="var(--color-sky-fest)" groups={giveGroups} sel={giveSel} onToggle={(id) => toggle(giveSel, setGiveSel, id)} />
+      <SelectBlock title="Você dá" subtitle="suas repetidas que ele precisa" color="var(--color-sky-fest)" groups={giveGroups} sel={giveSel} onToggle={(id) => toggle(giveSel, setGiveSel, id)}
+        emptyHint="Você não tem repetidas que ele precisa. Marque repetidas no álbum (toque no +) para poder oferecer." />
       <SelectBlock title="Você recebe" subtitle="o que ele tem e te falta" color="var(--color-have)" groups={getGroups} sel={getSel} onToggle={(id) => toggle(getSel, setGetSel, id)} />
       <div className="sticky bottom-0 -mx-5 bg-cream px-5 pt-3 pb-1 border-t-2 border-line">
         <div className="flex items-center justify-center gap-3 mb-1 font-700">
@@ -270,17 +292,17 @@ function TradeBuilder({ iGet, iGive, onSend }: { iGet: Sticker[]; iGive: Sticker
   );
 }
 
-function SelectBlock({ title, subtitle, color, groups, sel, onToggle }: {
+function SelectBlock({ title, subtitle, color, groups, sel, onToggle, emptyHint }: {
   title: string; subtitle: string; color: string;
   groups: { key: string; title: string; items: Sticker[] }[];
-  sel: Set<number>; onToggle: (id: number) => void;
+  sel: Set<number>; onToggle: (id: number) => void; emptyHint?: string;
 }) {
   return (
     <div>
       <p className="font-700 uppercase tracking-wide text-sm" style={{ color }}>{title}</p>
       <p className="text-xs text-ink-soft font-600 mb-2">{subtitle}</p>
       {groups.length === 0 ? (
-        <p className="text-ink-soft font-600 text-sm">nenhuma figurinha aqui</p>
+        <p className="rounded-lg bg-page px-3 py-2 text-sm font-600 text-ink-soft">{emptyHint ?? 'nenhuma figurinha aqui'}</p>
       ) : (
         <div className="space-y-2 max-h-48 overflow-y-auto no-scrollbar pr-1 rounded-lg bg-page p-2">
           {groups.map((g) => (
