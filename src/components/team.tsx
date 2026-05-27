@@ -4,19 +4,19 @@ import { getTeamColor, getFlagUrl, readableOn } from '../data/worldcup2026';
 
 /* ----------------------------- AVATARES (logos) ---------------------------- */
 
-export const AVATARS: { id: string; color: string }[] = [
+export const AVATARS: { id: string; color: string; num?: string }[] = [
   { id: 'ball', color: '#0b7a4b' },
   { id: 'trophy', color: '#d29a26' },
   { id: 'jersey', color: '#1f72d6' },
   { id: 'shield', color: '#c40b1e' },
-  { id: 'boot', color: '#16203f' },
-  { id: 'whistle', color: '#0a8fb0' },
-  { id: 'field', color: '#6d3fb0' },
-  { id: 'flag', color: '#ec6a1a' },
-  { id: 'medal', color: '#b81226' },
-  { id: 'cone', color: '#c41276' },
-  { id: 'card', color: '#0a6b3f' },
-  { id: 'star', color: '#d6336c' },
+  { id: 'star', color: '#ec6a1a' },
+  { id: 'medal', color: '#0a8fb0' },
+  { id: 'flag', color: '#0a6b3f' },
+  { id: 'n10', color: '#16203f', num: '10' },
+  { id: 'n9', color: '#6d3fb0', num: '9' },
+  { id: 'n7', color: '#b81226', num: '7' },
+  { id: 'n1', color: '#c41276', num: '1' },
+  { id: 'n23', color: '#d6336c', num: '23' },
 ];
 export const AVATAR_IDS = AVATARS.map((a) => a.id);
 const AVATAR_MAP = new Map(AVATARS.map((a) => [a.id, a]));
@@ -32,20 +32,10 @@ const LOGOS: Record<string, (fg: string, bg: string) => ReactNode> = {
   jersey: (fg) => <path d="M9 4.5 4 8l2 5 2.6-1.2V20h6.8v-8.2L18 13l2-5-5-3.5c-.8 1.7-5.2 1.7-6 0z" fill={fg} />,
   // escudo (com estrela vazada — cara de brasão de seleção)
   shield: (fg, bg) => <><path d="M12 3 5 6v6c0 4 3 7 7 9 4-2 7-5 7-9V6z" fill={fg} /><path d="M12 8.1l1.05 2.15 2.35.3-1.7 1.6.45 2.3L12 15.6l-2.15 1.05.45-2.3-1.7-1.6 2.35-.3z" fill={bg} /></>,
-  // chuteira (perfil, com travas)
-  boot: (fg) => <><path d="M2.8 12.4c0-1.6 1.1-2.7 3-3.1l4.6-1c1-.2 1.9.2 2.3 1.1l1.1 2.3 5.4 1c1.6.3 2.6 1.5 2.6 3.1v.4H2.8z" fill={fg} /><rect x="2.8" y="16.6" width="18.6" height="1.7" rx="0.85" fill={fg} /><g stroke={fg} strokeWidth="2.1" strokeLinecap="round"><path d="M5.8 18.6v1.4M9.6 18.6v1.4M13.4 18.6v1.4M17.2 18.6v1.4" /></g></>,
-  // apito (corpo redondo + bocal + furo)
-  whistle: (fg, bg) => <><circle cx="13.5" cy="13" r="6.2" fill={fg} /><rect x="2.4" y="10.8" width="6.8" height="4.4" rx="2.2" fill={fg} /><circle cx="13.5" cy="11" r="1.7" fill={bg} /></>,
-  // campo (vista de cima — gramado, linha central e círculo)
-  field: (fg, bg) => <><rect x="3" y="5" width="18" height="14" rx="2.4" fill={fg} /><path d="M12 5.4V18.6" stroke={bg} strokeWidth="1.6" /><circle cx="12" cy="12" r="2.8" fill="none" stroke={bg} strokeWidth="1.6" /></>,
   // bandeira de escanteio
   flag: (fg) => <><path d="M6 21V3.4" stroke={fg} strokeWidth="2.2" strokeLinecap="round" /><path d="M6 4.4h12.8l-3.4 4 3.4 4H6z" fill={fg} /></>,
   // medalha (com estrela vazada)
   medal: (fg, bg) => <><path d="M9 9.4 6.3 3M15 9.4 17.7 3" stroke={fg} strokeWidth="2.1" strokeLinecap="round" /><circle cx="12" cy="14.6" r="5.3" fill={fg} /><path d="M12 11.7l.95 1.95 2.15.25-1.6 1.5.42 2.1L12 16.55l-1.92 1 .42-2.1-1.6-1.5 2.15-.25z" fill={bg} /></>,
-  // cone de treino (com listras)
-  cone: (fg, bg) => <><path d="M12 4 7.3 18h9.4z" fill={fg} /><rect x="4.6" y="18.4" width="14.8" height="1.8" rx="0.9" fill={fg} /><g stroke={bg} strokeWidth="1.7"><path d="M10.7 10h2.6M9.7 14h4.6" /></g></>,
-  // cartão do juiz
-  card: (fg) => <rect x="7" y="3.2" width="9.5" height="15.5" rx="1.8" transform="rotate(13 12 11)" fill={fg} />,
   // estrela (craque)
   star: (fg) => <path d="M12 3l2.6 5.3 5.8.85-4.2 4.05 1 5.8L12 16.85 6.8 19l1-5.8L3.6 9.15l5.8-.85z" fill={fg} />,
 };
@@ -65,14 +55,21 @@ function Logo({ id, fg, bg, size }: { id: string; fg: string; bg: string; size: 
   );
 }
 
-/** Avatar = círculo com a logo escolhida (robusto a valores antigos). */
+/** Avatar = círculo com a logo (ícone) OU o número de camisa escolhido. */
 export function Avatar({ avatar, size = 44 }: { avatar: string; size?: number }) {
   const def = AVATAR_MAP.get(avatar) ?? AVATAR_MAP.get(fallbackId(avatar))!;
   const fg = readableOn(def.color);
   return (
     <div className="grid place-items-center rounded-full shrink-0 ring-1 ring-black/5"
       style={{ width: size, height: size, background: def.color }}>
-      <Logo id={def.id} fg={fg} bg={def.color} size={Math.round(size * 0.64)} />
+      {def.num ? (
+        <span className="font-display font-800 tnum leading-none"
+          style={{ color: fg, fontSize: Math.round(size * (def.num.length > 1 ? 0.46 : 0.56)) }}>
+          {def.num}
+        </span>
+      ) : (
+        <Logo id={def.id} fg={fg} bg={def.color} size={Math.round(size * 0.64)} />
+      )}
     </div>
   );
 }
