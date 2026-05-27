@@ -33,7 +33,7 @@ const LOGOS: Record<string, ReactNode> = {
   // chuteira
   boot: <><path d="M3 13.8c0-2 1.3-3.5 3.4-4.2L10.6 8 12 11.4l6.6 1.2c1.5.3 2.4 1.3 2.4 2.8v1.2H3z" fill="currentColor" stroke="none" /><path d="M6 18v1.7M10 18v1.7M14 18v1.7M18 18v1.7" /></>,
   // apito
-  whistle: <><rect x="6" y="9" width="13" height="7" rx="3.5" /><path d="M6 11.6H3.9a1.1 1.1 0 0 0 0 2.3H6" /><circle cx="14.6" cy="12.5" r="1.6" /></>,
+  whistle: <><rect x="6.5" y="9" width="12.5" height="7.5" rx="3.75" fill="currentColor" stroke="none" /><path d="M6.5 11.2H4a1.3 1.3 0 0 0 0 2.6h2.5z" fill="currentColor" stroke="none" /><path d="M9 5.5l1.6 3.2" /></>,
   // gol (trave + rede)
   goal: <><path d="M4 19V8h16v11" /><path d="M8 8v11M12 8v11M16 8v11M4 12h16M4 16h16" /></>,
   // bandeira de escanteio
@@ -57,7 +57,7 @@ function fallbackId(seed: string): string {
 function Logo({ id, color, size }: { id: string; color: string; size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" style={{ color }}
-      fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {LOGOS[id] ?? LOGOS.ball}
     </svg>
   );
@@ -70,7 +70,7 @@ export function Avatar({ avatar, size = 44 }: { avatar: string; size?: number })
   return (
     <div className="grid place-items-center rounded-full shrink-0 ring-1 ring-black/5"
       style={{ width: size, height: size, background: def.color }}>
-      <Logo id={def.id} color={fg} size={Math.round(size * 0.58)} />
+      <Logo id={def.id} color={fg} size={Math.round(size * 0.64)} />
     </div>
   );
 }
