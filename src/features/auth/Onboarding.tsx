@@ -11,7 +11,7 @@ import { tapHaptic, popSound } from '../../lib/haptics';
 import { isBackendEnabled } from '../../lib/supabase';
 import Login from './Login';
 
-const NAME_IDEAS = ['CraqueDoBairro', 'ReiDasTrocas', 'Furacao10', 'Estrelinha', 'GoleadorBR'];
+const NAME_IDEAS = ['Camisa10', 'CraqueDaCopa', 'Artilheiro', 'ReiDoAlbum', 'CapitaoBR', 'BolaDeOuro'];
 
 export default function Onboarding() {
   const createProfile = useStore((s) => s.createProfile);
