@@ -5,7 +5,7 @@ import { getTeam } from '../../data/worldcup2026';
 import { TOTAL } from '../../data/stickers';
 import { Card, Button, Sheet } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icons';
-import { Avatar, TeamBadge } from '../../components/team';
+import { Avatar, TeamBadge, AVATAR_COLORS } from '../../components/team';
 
 const ACHIEVEMENTS: Record<string, { icon: IconName; label: string }> = {
   'first-trade': { icon: 'swap', label: 'Primeira troca' },
@@ -20,8 +20,10 @@ export default function Profile() {
   const settings = useStore((s) => s.settings);
   const setSetting = useStore((s) => s.setSetting);
   const resetAll = useStore((s) => s.resetAll);
+  const setAvatar = useStore((s) => s.setAvatar);
   const nav = useNavigate();
   const [parents, setParents] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
   const stats = useMemo(() => statsFromCounts(counts), [counts]);
   const fav = getTeam(profile.favTeam);
 
@@ -33,14 +35,32 @@ export default function Profile() {
   return (
     <div className="space-y-5">
       <Card className="p-5 flex items-center gap-4">
-        <Avatar color={profile.avatar} size={68} />
+        <button onClick={() => setAvatarOpen(true)} className="relative shrink-0" aria-label="Trocar camisa">
+          <Avatar color={profile.avatar} size={68} />
+          <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-brand-500 text-white ring-2 ring-paper">
+            <Icon name="spark" size={13} strokeWidth={3} />
+          </span>
+        </button>
         <div className="flex-1">
           <h1 className="font-display font-800 text-2xl uppercase tracking-wide leading-none">{profile.displayName}</h1>
           <div className="mt-2 flex items-center gap-2 text-ink-soft font-600 text-sm">
             Torce para {fav?.name} {fav && <TeamBadge code={fav.code} size="sm" />}
           </div>
+          <button onClick={() => setAvatarOpen(true)} className="mt-1.5 text-sm font-700 text-brand-600">Trocar camisa</button>
         </div>
       </Card>
+
+      <Sheet open={avatarOpen} onClose={() => setAvatarOpen(false)} title="Escolha sua camisa">
+        <div className="grid grid-cols-4 gap-3">
+          {AVATAR_COLORS.map((c) => (
+            <button key={c} onClick={() => setAvatar(c)}
+              className={`grid aspect-square place-items-center rounded-2xl border-2 ${profile.avatar === c ? 'border-brand-500 scale-105' : 'border-line'}`}>
+              <Avatar color={c} size={48} />
+            </button>
+          ))}
+        </div>
+        <Button full size="lg" className="mt-4" onClick={() => setAvatarOpen(false)}>Pronto</Button>
+      </Sheet>
 
       <div className="grid grid-cols-3 gap-3 text-center">
         <StatCard n={stats.have} label="figurinhas" />

@@ -36,6 +36,8 @@ interface State {
   }) => Promise<{ recoveryCode: string }>;
   /** ativa o perfil no estado depois que o onboarding termina (recovery+tutorial) */
   refreshProfile: () => Promise<void>;
+  /** troca a cor do avatar (camisa) */
+  setAvatar: (color: string) => Promise<void>;
   verifyPin: (pin: string) => boolean;
   logout: () => Promise<void>;
   resetAll: () => Promise<void>;
@@ -99,6 +101,14 @@ export const useStore = create<State>((set, get) => ({
   refreshProfile: async () => {
     const p = (await kvGet<Profile>('profile')) ?? null;
     set({ profile: p });
+  },
+
+  setAvatar: async (color) => {
+    const p = get().profile;
+    if (!p) return;
+    const profile = { ...p, avatar: color };
+    await kvSet('profile', profile);
+    set({ profile });
   },
 
   verifyPin: (pin) => {

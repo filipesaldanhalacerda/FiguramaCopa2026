@@ -48,26 +48,39 @@ export function Flag({ code, size = 'md' }: { code: string; size?: keyof typeof 
 /** Alias mantido por compatibilidade — agora mostra a bandeira. */
 export const TeamBadge = Flag;
 
-/** Camisa de futebol estilizada. */
+/** Garante uma cor válida; valores antigos (emoji) viram uma cor consistente. */
+export function safeColor(c: string | undefined): string {
+  if (c && /^#[0-9a-fA-F]{6}$/.test(c)) return c;
+  let h = 0;
+  for (const ch of c ?? 'x') h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+
+/** Camisa de futebol estilizada (corpo, mangas e gola). */
 export function Jersey({ color, size = 28 }: { color: string; size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" fill="none">
       <path
-        d="M18 8 L9 13 L12.5 24 L17 21.5 V41 H31 V21.5 L35.5 24 L39 13 L30 8 C28.5 11.5 19.5 11.5 18 8 Z"
+        d="M18.5 7 L9 12 L12 23 L16.5 20.8 V41 H31.5 V20.8 L36 23 L39 12 L29.5 7
+           C29.5 10.2 18.5 10.2 18.5 7 Z"
         fill={color}
       />
+      {/* gola */}
+      <path d="M19 7.4 C21 10.4 27 10.4 29 7.4" stroke={color} strokeWidth="0" />
+      <path d="M20.2 8.2 C22 10.6 26 10.6 27.8 8.2" stroke="rgba(0,0,0,0.18)" strokeWidth="1.4" strokeLinecap="round" fill="none" />
     </svg>
   );
 }
 
-/** Avatar = círculo com a camisa na cor escolhida. */
+/** Avatar = círculo com a camisa na cor escolhida (robusto a valores antigos). */
 export function Avatar({ color, size = 44 }: { color: string; size?: number }) {
+  const col = safeColor(color);
   return (
     <div
-      className="grid place-items-center rounded-full shrink-0"
-      style={{ width: size, height: size, background: color }}
+      className="grid place-items-center rounded-full shrink-0 ring-1 ring-black/5"
+      style={{ width: size, height: size, background: col }}
     >
-      <Jersey color={readableOn(color)} size={size * 0.62} />
+      <Jersey color={readableOn(col)} size={size * 0.64} />
     </div>
   );
 }
