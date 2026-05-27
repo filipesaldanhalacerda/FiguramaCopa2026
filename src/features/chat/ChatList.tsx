@@ -5,7 +5,7 @@ import { getTeam } from '../../data/worldcup2026';
 import { Card, EmptyState } from '../../components/ui';
 import { Avatar, TeamBadge } from '../../components/team';
 import { isBackendEnabled } from '../../lib/supabase';
-import { isAuthed, listChats } from '../../lib/backend';
+import { listChats } from '../../lib/backend';
 
 interface Row {
   id: string; name: string; avatar: string; favTeam: string; last: string; unread?: number;
@@ -14,7 +14,7 @@ interface Row {
 export default function ChatList() {
   const nav = useNavigate();
   const [rows, setRows] = useState<Row[]>([]);
-  const backend = isBackendEnabled && isAuthed();
+  const backend = isBackendEnabled;
 
   useEffect(() => {
     (async () => {

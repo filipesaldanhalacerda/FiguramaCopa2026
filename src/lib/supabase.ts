@@ -9,8 +9,16 @@
  */
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+// Fallback público do projeto (a chave ANON é pública por design — a segurança
+// vem do RLS no Postgres). Garante o backend ligado mesmo se as variáveis de
+// ambiente não entrarem no build (ex.: Worker do Cloudflare). NUNCA coloque
+// aqui a service_role (essa sim é secreta).
+const FALLBACK_URL = 'https://jxgguyufqgixqlkaqono.supabase.co';
+const FALLBACK_ANON =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Z2d1eXVmcWdpeHFsa2Fxb25vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODgyNDMsImV4cCI6MjA5NTQ2NDI0M30.4jZLe-ckuCjIOdLoBIfFm6Pg_0agfJaC5Uciv2BvjlE';
+
+const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || FALLBACK_URL;
+const anon = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || FALLBACK_ANON;
 
 export const isBackendEnabled = Boolean(url && anon);
 

@@ -1,30 +1,49 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore, statsFromCounts, countsToMap } from '../../lib/store';
-import { db, type PeerRow } from '../../lib/db';
+import { db } from '../../lib/db';
 import { computeMatches, computeWishlist } from '../../lib/match';
 import { getTeam, FUN_FACTS, FIXTURES, TOURNAMENT } from '../../data/worldcup2026';
 import { Card, ProgressRing } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icons';
 import { Avatar, TeamBadge } from '../../components/team';
+import { isBackendEnabled } from '../../lib/supabase';
+import { fetchMatches } from '../../lib/backend';
 import { motion } from 'framer-motion';
+
+interface HomeCard { id: string; name: string; avatar: string; favTeam: string; n: number; kind: 'troca' | 'tem' }
 
 export default function Home() {
   const profile = useStore((s) => s.profile)!;
   const counts = useStore((s) => s.counts);
   const stats = useMemo(() => statsFromCounts(counts), [counts]);
-  const [peers, setPeers] = useState<PeerRow[]>([]);
+  const [matches, setMatches] = useState<HomeCard[]>([]);
   const nav = useNavigate();
   const favTeam = getTeam(profile.favTeam);
 
-  useEffect(() => { db.peers.toArray().then(setPeers); }, []);
-
-  const matches = useMemo(() => {
-    const mine = countsToMap(counts);
-    const mutual = computeMatches(mine, peers);
-    if (mutual.length) return mutual.map((m) => ({ peer: m.peer, n: m.iGet.length, kind: 'troca' as const }));
-    return computeWishlist(mine, peers).slice(0, 6).map((w) => ({ peer: w.peer, n: w.iGet.length, kind: 'tem' as const }));
-  }, [counts, peers]);
+  useEffect(() => {
+    let alive = true;
+    if (isBackendEnabled) {
+      fetchMatches().then((rows) => {
+        if (!alive) return;
+        setMatches(rows.slice(0, 8).map((r) => ({
+          id: r.partner_id, name: r.partner_slug, avatar: r.avatar, favTeam: r.fav_team,
+          n: Math.max(r.i_get, r.i_give), kind: r.i_get > 0 && r.i_give > 0 ? 'troca' : 'tem',
+        })));
+      });
+    } else {
+      db.peers.toArray().then((peers) => {
+        if (!alive) return;
+        const mine = countsToMap(counts);
+        const mutual = computeMatches(mine, peers);
+        const list: HomeCard[] = mutual.length
+          ? mutual.map((m) => ({ id: m.peer.id, name: m.peer.name, avatar: m.peer.avatar, favTeam: m.peer.favTeam, n: m.iGet.length, kind: 'troca' }))
+          : computeWishlist(mine, peers).slice(0, 6).map((w) => ({ id: w.peer.id, name: w.peer.name, avatar: w.peer.avatar, favTeam: w.peer.favTeam, n: w.iGet.length, kind: 'tem' }));
+        setMatches(list);
+      });
+    }
+    return () => { alive = false; };
+  }, [counts]);
 
   const nextFixture = useMemo(
     () => FIXTURES.find((f) => f.home === profile.favTeam || f.away === profile.favTeam) ?? FIXTURES[0],
@@ -108,15 +127,15 @@ export default function Home() {
         ) : (
           <div className="flex gap-3 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1">
             {matches.map((m) => {
-              const t = getTeam(m.peer.favTeam);
+              const t = getTeam(m.favTeam);
               return (
-                <motion.button whileTap={{ scale: 0.96 }} key={m.peer.id} onClick={() => nav('/trocar')}
-                  className="min-w-[158px] rounded-[var(--radius-card)] bg-paper border-2 border-line p-4 text-left shadow-[var(--shadow-card)]">
+                <motion.button whileTap={{ scale: 0.96 }} key={m.id} onClick={() => nav('/trocar')}
+                  className="w-[158px] shrink-0 rounded-[var(--radius-card)] bg-paper border-2 border-line p-4 text-left shadow-[var(--shadow-card)]">
                   <div className="flex items-center justify-between">
-                    <Avatar avatar={m.peer.avatar} size={40} />
+                    <Avatar avatar={m.avatar} size={40} />
                     {t && <TeamBadge code={t.code} size="sm" />}
                   </div>
-                  <div className="font-display font-800 mt-2 uppercase truncate">{m.peer.name}</div>
+                  <div className="font-display font-800 mt-2 uppercase truncate">{m.name}</div>
                   <p className="text-sm text-ink-soft font-600 mt-0.5 leading-tight">
                     {m.kind === 'troca' ? `${m.n} pra trocar com você` : `tem ${m.n} que te faltam`}
                   </p>

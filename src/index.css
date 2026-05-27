@@ -109,9 +109,6 @@ body {
 }
 
 #root { width: 100%; overflow-x: clip; }
-
-/* evita que textos/flex muito largos empurrem o layout além da tela */
-* { min-width: 0; }
 img, svg, video { max-width: 100%; }
 
 * { -webkit-user-select: none; user-select: none; }

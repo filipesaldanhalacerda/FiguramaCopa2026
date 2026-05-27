@@ -10,13 +10,12 @@ import { Avatar, TeamBadge } from '../../components/team';
 import { motion } from 'framer-motion';
 import { isBackendEnabled } from '../../lib/supabase';
 import {
-  isAuthed, getUid, loadChatPeer, loadMessages, sendChatMessage, subscribeMessages,
+  getUid, loadChatPeer, loadMessages, sendChatMessage, subscribeMessages,
   blockUser, reportUser, type ChatMsg, type ChatPeer,
 } from '../../lib/backend';
 
 export default function ChatRoom() {
-  const backend = isBackendEnabled && isAuthed();
-  return backend ? <BackendRoom /> : <LocalRoom />;
+  return isBackendEnabled ? <BackendRoom /> : <LocalRoom />;
 }
 
 /* ----------------------------- CHAT REAL --------------------------------- */

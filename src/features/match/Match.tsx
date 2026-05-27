@@ -11,7 +11,7 @@ import { Avatar, TeamBadge } from '../../components/team';
 import { ensureChat, sendMessage, tradeSummary } from '../../lib/chat';
 import { isBackendEnabled } from '../../lib/supabase';
 import {
-  isAuthed, fetchMatches, fetchTradeStickers, getOrCreateChat, sendChatMessage, type BackendMatch,
+  fetchMatches, fetchTradeStickers, getOrCreateChat, sendChatMessage, type BackendMatch,
 } from '../../lib/backend';
 
 function stars(balance: number) {
@@ -27,8 +27,7 @@ function groupBySection(stickers: Sticker[]) {
 }
 
 export default function Match() {
-  const backend = isBackendEnabled && isAuthed();
-  return backend ? <BackendMatch /> : <LocalMatch />;
+  return isBackendEnabled ? <BackendMatch /> : <LocalMatch />;
 }
 
 /* ============================ MATCH REAL (backend) ======================== */
