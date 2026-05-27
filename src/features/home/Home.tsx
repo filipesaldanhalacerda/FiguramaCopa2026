@@ -67,6 +67,18 @@ export default function Home() {
         <Button variant="navy" onClick={() => nav('/trocar')} className="!justify-start"><Icon name="swap" size={20} /> Trocas</Button>
       </div>
 
+      {/* atalho: repetidas pra trocar */}
+      {stats.dupes > 0 && (
+        <Card onClick={() => nav('/trocar/lista')} className="p-4 flex items-center gap-3 border-l-4 border-l-gold-400">
+          <span className="grid h-10 w-10 place-items-center rounded-lg bg-gold-100 text-gold-600"><Icon name="swap" size={20} /></span>
+          <div className="flex-1">
+            <p className="font-display font-800 tnum">{stats.dupes} repetidas pra trocar</p>
+            <p className="text-sm font-600 text-ink-soft">Veja organizadas por seleção</p>
+          </div>
+          <Icon name="forward" size={18} className="text-ink-soft" />
+        </Card>
+      )}
+
       {/* parceiros */}
       <section>
         <div className="flex items-center justify-between mb-2">

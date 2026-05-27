@@ -31,7 +31,7 @@ export default function Match() {
     <div className="space-y-4">
       <header className="flex items-center justify-between">
         <h1 className="font-display font-800 text-3xl uppercase tracking-wide">Trocar</h1>
-        <Button variant="soft" onClick={() => nav('/trocar/lista')}><Icon name="qr" size={18} /> Minha lista</Button>
+        <Button variant="soft" onClick={() => nav('/trocar/lista')}><Icon name="stack" size={18} /> Pra trocar</Button>
       </header>
 
       <p className="text-ink-soft font-600 -mt-1">
