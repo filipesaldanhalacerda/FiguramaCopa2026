@@ -64,7 +64,7 @@ export default function PublicList() {
   return (
     <div className="mx-auto min-h-[100svh] max-w-md px-5 py-8 safe-top">
       <header className="flex items-center gap-3 mb-5">
-        <Avatar color={data.avatar} size={56} />
+        <Avatar avatar={data.avatar} size={56} />
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h1 className="font-display font-800 text-2xl leading-none uppercase tracking-wide">{data.name}</h1>

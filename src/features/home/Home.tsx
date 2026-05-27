@@ -42,7 +42,7 @@ export default function Home() {
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
-        <Avatar color={profile.avatar} size={48} />
+        <Avatar avatar={profile.avatar} size={48} />
         <div className="flex-1 min-w-0">
           <p className="text-ink-soft font-600 leading-none text-sm">{greeting},</p>
           <h1 className="font-display font-800 text-2xl leading-tight uppercase tracking-wide truncate">{profile.displayName}</h1>
@@ -113,7 +113,7 @@ export default function Home() {
                 <motion.button whileTap={{ scale: 0.96 }} key={m.peer.id} onClick={() => nav('/trocar')}
                   className="min-w-[158px] rounded-[var(--radius-card)] bg-paper border-2 border-line p-4 text-left shadow-[var(--shadow-card)]">
                   <div className="flex items-center justify-between">
-                    <Avatar color={m.peer.avatar} size={40} />
+                    <Avatar avatar={m.peer.avatar} size={40} />
                     {t && <TeamBadge code={t.code} size="sm" />}
                   </div>
                   <div className="font-display font-800 mt-2 uppercase truncate">{m.peer.name}</div>

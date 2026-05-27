@@ -29,7 +29,7 @@ export default function ChatList() {
           const t = c.peer ? getTeam(c.peer.favTeam) : undefined;
           return (
             <Card key={c.id} onClick={() => nav(`/chat/${c.id}`)} className="p-3 flex items-center gap-3">
-              {c.peer && <Avatar color={c.peer.avatar} size={48} />}
+              {c.peer && <Avatar avatar={c.peer.avatar} size={48} />}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-display font-800 uppercase">{c.peer?.name ?? 'Parceiro'}</p>

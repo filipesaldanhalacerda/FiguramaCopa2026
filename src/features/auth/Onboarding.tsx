@@ -5,7 +5,7 @@ import { useStore } from '../../lib/store';
 import { TEAMS } from '../../data/worldcup2026';
 import { Button } from '../../components/ui';
 import { Icon } from '../../components/icons';
-import { Avatar, AVATAR_COLORS, TeamBadge, Jersey } from '../../components/team';
+import { Avatar, AVATARS, TeamBadge, Jersey } from '../../components/team';
 import { burstConfetti } from '../../lib/confetti';
 import { tapHaptic, popSound } from '../../lib/haptics';
 import { backendSignUp } from '../../lib/supabase';
@@ -20,7 +20,7 @@ export default function Onboarding() {
   const [slug, setSlug] = useState('');
   const [pin, setPin] = useState('');
   const [pin2, setPin2] = useState('');
-  const [avatar, setAvatar] = useState(AVATAR_COLORS[0]);
+  const [avatar, setAvatar] = useState(AVATARS[0].id);
   const [favTeam, setFavTeam] = useState('BRA');
   const [recovery, setRecovery] = useState('');
 
@@ -82,12 +82,12 @@ export default function Onboarding() {
           )}
 
           {step === 3 && (
-            <Step title="Escolha sua cor" hint="A camisa que representa você no Figurama.">
+            <Step title="Escolha sua logo" hint="O símbolo que representa você no Figurama.">
               <div className="grid grid-cols-4 gap-3">
-                {AVATAR_COLORS.map((c) => (
-                  <motion.button key={c} whileTap={{ scale: 0.85 }} onClick={() => { tapHaptic('pop'); setAvatar(c); }}
-                    className={`grid aspect-square place-items-center rounded-2xl border-2 ${avatar === c ? 'border-brand-500 scale-105' : 'border-line'}`}>
-                    <Avatar color={c} size={48} />
+                {AVATARS.map((a) => (
+                  <motion.button key={a.id} whileTap={{ scale: 0.85 }} onClick={() => { tapHaptic('pop'); setAvatar(a.id); }}
+                    className={`grid aspect-square place-items-center rounded-2xl border-2 ${avatar === a.id ? 'border-brand-500 scale-105' : 'border-line'}`}>
+                    <Avatar avatar={a.id} size={48} />
                   </motion.button>
                 ))}
               </div>

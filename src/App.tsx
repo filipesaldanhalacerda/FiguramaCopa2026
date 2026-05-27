@@ -4,6 +4,7 @@ import { useStore } from './lib/store';
 import { Jersey } from './components/team';
 import AppShell from './components/AppShell';
 import Onboarding from './features/auth/Onboarding';
+import Lock from './features/auth/Lock';
 import Home from './features/home/Home';
 import Album from './features/collection/Album';
 import SectionView from './features/collection/SectionView';
@@ -22,6 +23,7 @@ import Profile from './features/profile/Profile';
 export default function App() {
   const ready = useStore((s) => s.ready);
   const profile = useStore((s) => s.profile);
+  const locked = useStore((s) => s.locked);
   const hydrate = useStore((s) => s.hydrate);
 
   useEffect(() => { hydrate(); }, [hydrate]);
@@ -36,6 +38,8 @@ export default function App() {
           <Route path="*" element={<Splash />} />
         ) : !profile ? (
           <Route path="*" element={<Onboarding />} />
+        ) : locked ? (
+          <Route path="*" element={<Lock />} />
         ) : (
           <>
             {/* chat em tela cheia */}

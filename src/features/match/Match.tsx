@@ -59,7 +59,7 @@ export default function Match() {
             return (
               <Card key={m.peer.id} className="p-4">
                 <div className="flex items-start gap-3">
-                  <Avatar color={m.peer.avatar} size={48} />
+                  <Avatar avatar={m.peer.avatar} size={48} />
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-display font-800 text-lg uppercase">{m.peer.name}</span>
@@ -107,7 +107,7 @@ export default function Match() {
             const t = getTeam(w.peer.favTeam);
             return (
               <Card key={w.peer.id} className="p-4 flex items-center gap-3">
-                <Avatar color={w.peer.avatar} size={44} />
+                <Avatar avatar={w.peer.avatar} size={44} />
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-display font-800 uppercase">{w.peer.name}</span>

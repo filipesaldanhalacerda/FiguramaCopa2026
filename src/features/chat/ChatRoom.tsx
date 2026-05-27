@@ -56,7 +56,7 @@ export default function ChatRoom() {
     <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-page">
       <header className="sticky top-0 z-20 flex items-center gap-3 bg-navy-800 text-white px-4 py-3 safe-top">
         <button onClick={() => nav('/chat')} aria-label="Voltar"><Icon name="back" size={22} /></button>
-        {peer && <Avatar color={peer.avatar} size={36} />}
+        {peer && <Avatar avatar={peer.avatar} size={36} />}
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <p className="font-display font-800 leading-none uppercase">{peer?.name ?? 'Conversa'}</p>

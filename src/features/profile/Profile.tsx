@@ -5,7 +5,7 @@ import { getTeam } from '../../data/worldcup2026';
 import { TOTAL } from '../../data/stickers';
 import { Card, Button, Sheet } from '../../components/ui';
 import { Icon, type IconName } from '../../components/icons';
-import { Avatar, TeamBadge, AVATAR_COLORS } from '../../components/team';
+import { Avatar, TeamBadge, AVATARS } from '../../components/team';
 
 const ACHIEVEMENTS: Record<string, { icon: IconName; label: string }> = {
   'first-trade': { icon: 'swap', label: 'Primeira troca' },
@@ -21,6 +21,7 @@ export default function Profile() {
   const setSetting = useStore((s) => s.setSetting);
   const resetAll = useStore((s) => s.resetAll);
   const setAvatar = useStore((s) => s.setAvatar);
+  const lockSession = useStore((s) => s.lockSession);
   const nav = useNavigate();
   const [parents, setParents] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
@@ -36,7 +37,7 @@ export default function Profile() {
     <div className="space-y-5">
       <Card className="p-5 flex items-center gap-4">
         <button onClick={() => setAvatarOpen(true)} className="relative shrink-0" aria-label="Trocar camisa">
-          <Avatar color={profile.avatar} size={68} />
+          <Avatar avatar={profile.avatar} size={68} />
           <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-brand-500 text-white ring-2 ring-paper">
             <Icon name="spark" size={13} strokeWidth={3} />
           </span>
@@ -52,10 +53,10 @@ export default function Profile() {
 
       <Sheet open={avatarOpen} onClose={() => setAvatarOpen(false)} title="Escolha sua camisa">
         <div className="grid grid-cols-4 gap-3">
-          {AVATAR_COLORS.map((c) => (
-            <button key={c} onClick={() => setAvatar(c)}
-              className={`grid aspect-square place-items-center rounded-2xl border-2 ${profile.avatar === c ? 'border-brand-500 scale-105' : 'border-line'}`}>
-              <Avatar color={c} size={48} />
+          {AVATARS.map((a) => (
+            <button key={a.id} onClick={() => setAvatar(a.id)}
+              className={`grid aspect-square place-items-center rounded-2xl border-2 ${profile.avatar === a.id ? 'border-brand-500 scale-105' : 'border-line'}`}>
+              <Avatar avatar={a.id} size={48} />
             </button>
           ))}
         </div>
@@ -94,8 +95,10 @@ export default function Profile() {
         </Card>
       </section>
 
+      <Button full variant="soft" onClick={() => lockSession()}><Icon name="lock" size={18} /> Sair</Button>
+
       <button onClick={() => { if (confirm('Isso apaga sua conta e sua coleção deste aparelho. Continuar?')) resetAll(); }}
-        className="w-full py-3 font-700 text-[var(--color-magenta)]">
+        className="w-full py-2 font-700 text-[var(--color-magenta)]">
         Apagar minha conta deste aparelho
       </button>
 

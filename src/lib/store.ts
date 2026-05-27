@@ -27,6 +27,7 @@ interface Settings {
 interface State {
   ready: boolean;
   profile: Profile | null;
+  locked: boolean; // sessão bloqueada (logout) — pede o PIN para voltar
   counts: Record<number, number>; // stickerId -> count
   settings: Settings;
 
@@ -36,8 +37,12 @@ interface State {
   }) => Promise<{ recoveryCode: string }>;
   /** ativa o perfil no estado depois que o onboarding termina (recovery+tutorial) */
   refreshProfile: () => Promise<void>;
-  /** troca a cor do avatar (camisa) */
-  setAvatar: (color: string) => Promise<void>;
+  /** troca a logo do avatar */
+  setAvatar: (avatar: string) => Promise<void>;
+  /** logout: bloqueia a sessão (mantém os dados; pede PIN para voltar) */
+  lockSession: () => void;
+  /** valida o PIN e desbloqueia a sessão */
+  unlockSession: (pin: string) => Promise<boolean>;
   verifyPin: (pin: string) => boolean;
   logout: () => Promise<void>;
   resetAll: () => Promise<void>;
@@ -67,6 +72,7 @@ const DEFAULT_SETTINGS: Settings = { soundOn: true, achievements: [] };
 export const useStore = create<State>((set, get) => ({
   ready: false,
   profile: null,
+  locked: false,
   counts: {},
   settings: DEFAULT_SETTINGS,
 
@@ -103,12 +109,28 @@ export const useStore = create<State>((set, get) => ({
     set({ profile: p });
   },
 
-  setAvatar: async (color) => {
+  setAvatar: async (avatar) => {
     const p = get().profile;
     if (!p) return;
-    const profile = { ...p, avatar: color };
+    const profile = { ...p, avatar };
     await kvSet('profile', profile);
     set({ profile });
+  },
+
+  lockSession: () => set({ locked: true }),
+
+  unlockSession: async (pin) => {
+    const p = get().profile;
+    if (!p) return false;
+    const tries = [
+      await sha256(`${p.displayName}:${pin}`),
+      await sha256(`${p.slug}:${pin}`),
+    ];
+    if (tries.includes(p.pinHash)) {
+      set({ locked: false });
+      return true;
+    }
+    return false;
   },
 
   verifyPin: (pin) => {
