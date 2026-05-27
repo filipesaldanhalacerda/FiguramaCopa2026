@@ -2,13 +2,16 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ReactNode, ButtonHTMLAttributes } from 'react';
 import { tapHaptic } from '../lib/haptics';
+import { Icon, type IconName } from './icons';
 
-type Variant = 'primary' | 'ghost' | 'soft' | 'sky' | 'magenta';
+type Variant = 'primary' | 'ghost' | 'soft' | 'sky' | 'magenta' | 'navy' | 'gold';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand-500 text-white shadow-[var(--shadow-sticker)]',
-  sky: 'bg-[var(--color-sky-fest)] text-white shadow-[var(--shadow-sticker)]',
-  magenta: 'bg-[var(--color-magenta)] text-white shadow-[var(--shadow-sticker)]',
+  primary: 'bg-brand-500 text-white shadow-[var(--shadow-card)]',
+  navy: 'bg-navy-800 text-white shadow-[var(--shadow-card)]',
+  gold: 'bg-gold-500 text-navy-900 shadow-[var(--shadow-card)]',
+  sky: 'bg-[var(--color-sky-fest)] text-white shadow-[var(--shadow-card)]',
+  magenta: 'bg-[var(--color-magenta)] text-white shadow-[var(--shadow-card)]',
   soft: 'bg-brand-100 text-brand-700',
   ghost: 'bg-transparent text-ink-soft',
 };
@@ -131,12 +134,14 @@ export function Sheet({
   );
 }
 
-export function EmptyState({ emoji, title, hint }: { emoji: string; title: string; hint?: string }) {
+export function EmptyState({ icon, title, hint }: { icon: IconName; title: string; hint?: string }) {
   return (
-    <div className="text-center py-10 px-6">
-      <div className="text-6xl mb-3 animate-[var(--animate-float)]">{emoji}</div>
-      <p className="font-display font-700 text-xl">{title}</p>
-      {hint && <p className="text-ink-soft mt-1">{hint}</p>}
+    <div className="text-center py-12 px-6">
+      <div className="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-2xl bg-brand-50 text-brand-400">
+        <Icon name={icon} size={32} />
+      </div>
+      <p className="font-display font-800 text-xl uppercase tracking-wide">{title}</p>
+      {hint && <p className="text-ink-soft mt-1 font-600">{hint}</p>}
     </div>
   );
 }

@@ -30,19 +30,19 @@ function normalize(s: string): string {
 
 export function checkMessage(raw: string): SafetyResult {
   const text = raw.trim();
-  if (!text) return { ok: false, reason: 'Escreva alguma coisa 🙂' };
+  if (!text) return { ok: false, reason: 'Escreva alguma coisa.' };
   if (text.length > 280) return { ok: false, reason: 'Mensagem muito longa.' };
 
   for (const { re, reason } of PERSONAL_DATA_PATTERNS) {
     if (re.test(text)) {
-      return { ok: false, reason: `Não compartilhe ${reason} no chat 🚫. Combine a troca em um lugar seguro!` };
+      return { ok: false, reason: `Não compartilhe ${reason} no chat. Combine a troca em um lugar seguro.` };
     }
   }
 
   const norm = normalize(text);
   const words = norm.split(/[^a-z0-9]+/);
   if (words.some((w) => BAD_WORDS.includes(w))) {
-    return { ok: false, reason: 'Vamos manter o papo legal! 😊 Tente de outro jeito.' };
+    return { ok: false, reason: 'Vamos manter o papo legal. Tente de outro jeito.' };
   }
 
   return { ok: true, text };

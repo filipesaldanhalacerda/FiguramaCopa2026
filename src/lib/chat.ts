@@ -23,20 +23,20 @@ export async function sendMessage(chatId: string, body: string, isQuick = false)
 }
 
 const QUICK_REPLIES = [
-  'Quero trocar! 🤝',
-  'Tenho sim ✅',
-  'Não tenho 😅',
+  'Quero trocar!',
+  'Tenho sim',
+  'Não tenho essa',
   'Onde a gente troca?',
-  'Vou levar pra escola amanhã 🎒',
-  'Combinado! 👍',
+  'Levo pra escola amanhã',
+  'Combinado!',
 ];
 
 const DEMO_ANSWERS = [
-  'Boa! Bora trocar 🤝',
-  'Fechou! Levo as repetidas amanhã 🎒',
+  'Boa! Bora trocar.',
+  'Fechou, levo as repetidas amanhã.',
   'Tenho sim! Me passa as suas?',
-  'Massa! A gente combina num lugar com adulto por perto 👍',
-  'Topo a troca! 🔁',
+  'Massa! A gente combina num lugar com adulto por perto.',
+  'Topo a troca!',
 ];
 
 async function maybeDemoReply(chatId: string): Promise<void> {
@@ -53,9 +53,9 @@ async function maybeDemoReply(chatId: string): Promise<void> {
 }
 
 export function tradeSummary(iGet: Sticker[], iGive: Sticker[]): string {
-  const g = iGet.map((s) => `#${s.id}`).join(', ') || '—';
-  const v = iGive.map((s) => `#${s.id}`).join(', ') || '—';
-  return `🤝 Proposta de troca\nVocê recebe: ${g}\nVocê dá: ${v}`;
+  const g = iGet.map((s) => `${s.id}`).join(', ') || '—';
+  const v = iGive.map((s) => `${s.id}`).join(', ') || '—';
+  return `Proposta de troca\nVocê recebe: ${g}\nVocê dá: ${v}`;
 }
 
 export { QUICK_REPLIES };

@@ -11,7 +11,11 @@ const NAMES = [
   'Téo', 'Lara', 'Caco', 'Bia', 'Nando', 'Manu', 'Rivaldinho',
   'Duda', 'Léo', 'Maju', 'Pipoca', 'Zezé',
 ];
-const AVATARS = ['🦊', '🐯', '🐼', '🦁', '🐸', '🐙', '🦄', '🐵', '🐲', '🦖', '🐧', '🐨'];
+// cores de "kit" para os avatares (sem emojis)
+const AVATARS = [
+  '#0b7a4b', '#1b2a55', '#c40b1e', '#d29a26', '#1f72d6', '#ec6a1a',
+  '#6d3fb0', '#0a8fb0', '#b81226', '#2a2a2a', '#0a6b3f', '#c41276',
+];
 const CITIES = ['São Paulo', 'Rio', 'BH', 'Curitiba', 'Recife', 'Salvador'];
 
 // PRNG determinístico (mulberry32)

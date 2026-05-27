@@ -1,91 +1,99 @@
 @import 'tailwindcss';
 
 /* ===========================================================================
-   FIGURAMA — Design System
-   Conceito: "álbum de figurinhas encontra arcade de Copa" — lúdico, festivo,
-   energia de torcida, mas limpo e legível para crianças.
+   FIGURAMA — Design System (v2)
+   Direção: app de futebol profissional com referência de Copa do Mundo —
+   verde-gramado, dourado-troféu e azul-marinho. A área do álbum imita um
+   álbum de figurinhas: cabeçalho por seleção e "espaços" numerados em relevo.
+   Tipografia esportiva (Barlow / Barlow Condensed). Sem emojis: ícones SVG.
    =========================================================================== */
 
 @theme {
-  /* Marca: laranja-energia (neutro entre rivalidades) */
-  --color-brand-50: #fff3ec;
-  --color-brand-100: #ffe1cf;
-  --color-brand-200: #ffc3a1;
-  --color-brand-300: #ff9d68;
-  --color-brand-400: #ff7d3c;
-  --color-brand-500: #ff6b2c; /* primária */
-  --color-brand-600: #f04e0c;
-  --color-brand-700: #c63c08;
-  --color-brand-800: #9c310d;
+  /* Marca: verde-gramado */
+  --color-brand-50: #e9f6ef;
+  --color-brand-100: #c8e9d6;
+  --color-brand-200: #93d0ad;
+  --color-brand-300: #54b482;
+  --color-brand-400: #1f9a63;
+  --color-brand-500: #0b7a4b; /* primária */
+  --color-brand-600: #086a40;
+  --color-brand-700: #064d30;
+  --color-brand-800: #04361f;
 
-  /* Acentos festivos */
-  --color-sky-fest: #1fa2ff;   /* azul-céu */
-  --color-gold: #ffc83d;       /* ouro-troféu */
-  --color-magenta: #ff4d8d;    /* magenta-festa */
-  --color-field: #14b85c;      /* verde-campo */
-  --color-grape: #6d4aff;      /* roxo-uva (raro) */
+  /* Dourado-troféu */
+  --color-gold-100: #f9edc7;
+  --color-gold-300: #edcb6f;
+  --color-gold-400: #e3b449;
+  --color-gold-500: #d29a26;
+  --color-gold-600: #ab7c18;
+
+  /* Azul-marinho profundo */
+  --color-navy-700: #16203f;
+  --color-navy-800: #0e1730;
+  --color-navy-900: #0a1126;
+
+  /* Acentos esportivos (uso pontual) */
+  --color-pitch: #0b7a4b;
+  --color-sky-fest: #1f72d6;
+  --color-flame: #e2542b;
 
   /* Semântica da coleção */
-  --color-have: #14b85c;       /* tem */
-  --color-dupe: #1fa2ff;       /* repetida */
-  --color-missing: #c9c2d6;    /* falta */
+  --color-have: #0b7a4b;   /* tem */
+  --color-dupe: #d29a26;   /* repetida */
+  --color-missing: #aab2bf; /* falta */
 
-  /* Neutros quentes (fundo creme, não branco "de IA") */
-  --color-cream: #fff8f0;
+  /* Neutros (profissional, levemente frio) */
+  --color-page: #eef1f4;
   --color-paper: #ffffff;
-  --color-ink: #1a1330;        /* texto principal (ameixa escuro) */
-  --color-ink-soft: #5b5274;
-  --color-line: #efe7dd;
+  --color-album: #fbfcfd;  /* página do álbum */
+  --color-ink: #0e1730;
+  --color-ink-soft: #586173;
+  --color-line: #e2e7ee;
 
   /* Tipografia */
-  --font-display: 'Baloo 2', system-ui, sans-serif;
-  --font-body: 'Nunito', system-ui, sans-serif;
+  --font-display: 'Barlow Condensed', system-ui, sans-serif;
+  --font-semi: 'Barlow Semi Condensed', system-ui, sans-serif;
+  --font-body: 'Barlow', system-ui, sans-serif;
 
-  /* Pesos numéricos → habilita utilitários font-500..font-900 */
   --font-weight-500: 500;
   --font-weight-600: 600;
   --font-weight-700: 700;
   --font-weight-800: 800;
   --font-weight-900: 900;
 
-  /* Raios e sombras (cara de adesivo) */
-  --radius-sticker: 1.5rem;
+  --radius-card: 1.1rem;
 
-  --shadow-sticker: 0 2px 0 rgba(26, 19, 48, 0.18), 0 10px 22px -8px rgba(240, 78, 12, 0.28);
-  --shadow-pop: 0 14px 30px -10px rgba(26, 19, 48, 0.35);
+  --shadow-card: 0 1px 2px rgba(14, 23, 48, 0.06), 0 10px 24px -16px rgba(14, 23, 48, 0.28);
+  --shadow-raised: 0 2px 4px rgba(14, 23, 48, 0.12), 0 14px 26px -12px rgba(14, 23, 48, 0.32);
 
-  /* Animações */
-  --animate-pop-in: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* aliases de compatibilidade com classes existentes */
+  --color-cream: #eef1f4;
+  --color-magenta: #d6336c;
+  --color-gold: #d29a26;
+  --color-field: #0b7a4b;
+  --color-grape: #6d3fb0;
+  --radius-sticker: 1.1rem;
+  --shadow-sticker: 0 1px 2px rgba(14, 23, 48, 0.06), 0 10px 24px -16px rgba(14, 23, 48, 0.28);
+  --shadow-pop: 0 2px 4px rgba(14, 23, 48, 0.12), 0 14px 26px -12px rgba(14, 23, 48, 0.32);
+
+  --animate-pop-in: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   --animate-float: float 4s ease-in-out infinite;
 }
 
-@keyframes pop-in {
-  0% { transform: scale(0.7); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
+@keyframes pop-in { 0% { transform: scale(0.8); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+@keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
 
 /* ---------------------------------------------------------------- base ---- */
-html {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-text-size-adjust: 100%;
-}
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--color-ink);
-  background-color: var(--color-cream);
-  /* Atmosfera: malha de gradientes festivos + textura de pontos sutil */
+  background-color: var(--color-page);
   background-image:
-    radial-gradient(circle at 12% 8%, rgba(255, 200, 61, 0.18), transparent 42%),
-    radial-gradient(circle at 88% 4%, rgba(31, 162, 255, 0.14), transparent 40%),
-    radial-gradient(circle at 50% 100%, rgba(255, 77, 141, 0.1), transparent 55%),
-    radial-gradient(rgba(26, 19, 48, 0.04) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 22px 22px;
+    radial-gradient(1200px 480px at 50% -10%, rgba(11, 122, 75, 0.10), transparent 60%),
+    radial-gradient(900px 420px at 100% 0%, rgba(210, 154, 38, 0.08), transparent 55%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
@@ -96,14 +104,15 @@ input, textarea { -webkit-user-select: text; user-select: text; }
 
 h1, h2, h3, h4, .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.005em;
+  font-weight: 700;
 }
 
-/* Esconde scrollbar mantendo o scroll (carrosséis) */
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Respeita preferência de movimento reduzido */
+.tnum { font-variant-numeric: tabular-nums; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
@@ -112,6 +121,61 @@ h1, h2, h3, h4, .font-display {
   }
 }
 
-/* Áreas seguras (notch) para o app instalado */
 .safe-top { padding-top: env(safe-area-inset-top); }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* =========================================================================
+   ÁLBUM — "espaços" de figurinha (estética de álbum, design original)
+   Use a variável --tc (team color) inline para colorir por seleção.
+   ========================================================================= */
+.album-page {
+  background:
+    linear-gradient(var(--color-album), var(--color-album)),
+    repeating-linear-gradient(0deg, rgba(14,23,48,0.025) 0 1px, transparent 1px 26px);
+}
+
+.slot {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.6rem;
+  overflow: hidden;
+  transition: transform 0.12s ease;
+}
+
+/* espaço vazio: recuado, com borda tracejada e número impresso */
+.slot--empty {
+  background: #eef1f5;
+  box-shadow: inset 0 2px 5px rgba(14, 23, 48, 0.12);
+  border: 1.5px dashed #c2cad6;
+}
+
+/* figurinha colada: relevo + brilho diagonal */
+.slot--filled {
+  border: none;
+  box-shadow: var(--shadow-raised);
+  background:
+    linear-gradient(150deg, color-mix(in srgb, var(--tc, #0b7a4b) 88%, white) 0%,
+                            var(--tc, #0b7a4b) 55%,
+                            color-mix(in srgb, var(--tc, #0b7a4b) 78%, black) 100%);
+}
+.slot--filled::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0) 38%);
+  pointer-events: none;
+}
+
+/* especiais/escudo: acabamento "foil" dourado */
+.slot--foil {
+  background:
+    linear-gradient(135deg, #fff6d8 0%, #e9c45e 28%, #b9892a 52%, #f2d985 74%, #c79a33 100%);
+  border: none;
+  box-shadow: var(--shadow-raised);
+}
+.slot--foil::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(115deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 40%);
+  pointer-events: none;
+}

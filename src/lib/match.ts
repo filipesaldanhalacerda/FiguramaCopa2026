@@ -55,10 +55,10 @@ export function computeMatches(
   return results;
 }
 
-export function matchQuality(m: MatchResult): { label: string; emoji: string; color: string } {
-  if (m.balance >= 5) return { label: 'Match perfeito', emoji: '🌟', color: 'var(--color-gold)' };
-  if (m.balance >= 3) return { label: 'Match incrível', emoji: '⭐', color: 'var(--color-magenta)' };
-  return { label: 'Boa troca', emoji: '👍', color: 'var(--color-sky-fest)' };
+export function matchQuality(m: MatchResult): { label: string; stars: number; color: string } {
+  if (m.balance >= 5) return { label: 'Troca perfeita', stars: 3, color: 'var(--color-gold)' };
+  if (m.balance >= 3) return { label: 'Ótima troca', stars: 2, color: 'var(--color-sky-fest)' };
+  return { label: 'Boa troca', stars: 1, color: 'var(--color-brand-500)' };
 }
 
 export interface WishlistMatch {

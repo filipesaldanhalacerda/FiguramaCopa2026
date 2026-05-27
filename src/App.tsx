@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './lib/store';
+import { Jersey } from './components/team';
 import AppShell from './components/AppShell';
 import Onboarding from './features/auth/Onboarding';
 import Home from './features/home/Home';
@@ -66,8 +67,10 @@ function Splash() {
   return (
     <div className="grid min-h-[100svh] place-items-center">
       <div className="text-center">
-        <div className="text-7xl animate-[var(--animate-float)]">⚽</div>
-        <p className="font-display font-800 text-3xl text-brand-600 mt-2">Figurama</p>
+        <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-brand-500 animate-[var(--animate-float)]">
+          <Jersey color="#d29a26" size={48} />
+        </div>
+        <p className="font-display font-800 text-3xl text-brand-600 mt-3 uppercase tracking-wide">Figurama</p>
       </div>
     </div>
   );

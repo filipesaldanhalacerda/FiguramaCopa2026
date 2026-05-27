@@ -178,6 +178,36 @@ export const GROUPS: Group[] = (['A','B','C','D','E','F','G','H','I','J','K','L'
 const teamByCode = new Map(TEAMS.map((t) => [t.code, t]));
 export const getTeam = (code: string): Team | undefined => teamByCode.get(code);
 
+/** Cor principal (kit) de cada seleção — usada nos códigos e nas figurinhas. */
+export const TEAM_COLORS: Record<string, string> = {
+  MEX: '#0a7b3e', RSA: '#15803d', KOR: '#1d4ed8', CZE: '#11457e',
+  CAN: '#d52b1e', BIH: '#1b3a8c', QAT: '#7a1230', SUI: '#d52b1e',
+  BRA: '#f5c518', MAR: '#b81d22', HAI: '#14209f', SCO: '#0a4fa0',
+  USA: '#11295b', PAR: '#c81f24', AUS: '#0a7b3e', TUR: '#d81f26',
+  GER: '#2a2a2a', CUW: '#0a39a8', CIV: '#ef7a1a', ECU: '#e6b800',
+  NED: '#ec6a1a', JPN: '#16235e', SWE: '#1f6aa6', TUN: '#d51020',
+  BEL: '#c01526', EGY: '#c01526', IRN: '#15803d', NZL: '#1f1f24',
+  ESP: '#c40b1e', CPV: '#0a3aa0', KSA: '#0a6c39', URU: '#4f8fd6',
+  FRA: '#1b2a55', SEN: '#0a8a44', IRQ: '#0a7a3f', NOR: '#b80c2f',
+  ARG: '#4f93cf', ALG: '#0a6233', AUT: '#e02232', JOR: '#c41226',
+  POR: '#b81226', COD: '#1f7fd6', UZB: '#0a8fb0', COL: '#e6b800',
+  ENG: '#1a2a6c', CRO: '#b81226', GHA: '#0a6b3f', PAN: '#c81034',
+};
+
+export const getTeamColor = (code?: string): string =>
+  (code && TEAM_COLORS[code]) || '#0b7a4b';
+
+/** Escolhe texto escuro ou branco com bom contraste sobre uma cor. */
+export function readableOn(hex: string): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16) / 255;
+  const g = parseInt(h.slice(2, 4), 16) / 255;
+  const b = parseInt(h.slice(4, 6), 16) / 255;
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  return L > 0.55 ? '#0e1730' : '#ffffff';
+}
+
 export interface Fixture {
   group: GroupId;
   matchday: 1 | 2 | 3;
@@ -200,11 +230,11 @@ export const FIXTURES: Fixture[] = GROUPS.flatMap((g) => {
 
 /** Curiosidades gerais sobre a Copa (fatos estáveis). */
 export const FUN_FACTS: string[] = [
-  'A Copa de 2026 é a primeira com 48 seleções — antes eram 32!',
-  'Três países vão sediar juntos: Estados Unidos, México e Canadá. 🇺🇸🇲🇽🇨🇦',
+  'A Copa de 2026 é a primeira com 48 seleções — antes eram 32.',
+  'Três países vão sediar juntos: Estados Unidos, México e Canadá.',
   'Serão 104 jogos no total, mais do que qualquer Copa anterior.',
   'O México vai ser o primeiro país a sediar três Copas do Mundo.',
-  'O álbum oficial da Panini tem 980 figurinhas, o maior da história!',
+  'O álbum oficial tem 980 figurinhas, o maior da história.',
   'A final será no MetLife Stadium, perto de Nova York.',
   'O Brasil é o único país que jogou todas as Copas do Mundo.',
   'Cada seleção tem uma página no álbum com 20 figurinhas.',
