@@ -1,28 +1,45 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore, statsFromCounts } from '../../lib/store';
-import { SECTIONS, findByCode } from '../../data/stickers';
+import { SECTIONS, findByCode, type AlbumSection } from '../../data/stickers';
 import { GROUPS, getTeamColor } from '../../data/worldcup2026';
 import { Card } from '../../components/ui';
 import { Icon } from '../../components/icons';
 import { TeamBadge } from '../../components/team';
 
+const norm = (s: string) =>
+  s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
 export default function Album() {
   const counts = useStore((s) => s.counts);
   const stats = useMemo(() => statsFromCounts(counts), [counts]);
   const nav = useNavigate();
-  const [jump, setJump] = useState('');
+  const [q, setQ] = useState('');
 
-  function goToNumber(e: React.FormEvent) {
-    e.preventDefault();
-    const q = jump.trim();
-    // aceita código oficial (MEX5, FWC9, 00) ou só a sigla do time (BRA)
-    const s = findByCode(q);
-    const sectionByCode = SECTIONS.find((x) => x.key.toUpperCase() === q.replace(/\s/g, '').toUpperCase());
-    if (s) nav(`/album/${s.section}`);
-    else if (sectionByCode) nav(`/album/${sectionByCode.key}`);
-    setJump('');
-  }
+  // busca instantânea: por nome do país, sigla ou código oficial (MEX5, FWC9)
+  const results = useMemo<AlbumSection[]>(() => {
+    const raw = q.trim();
+    if (!raw) return [];
+    const nq = norm(raw);
+    const term = nq.replace(/[0-9]/g, '').trim() || nq;
+    const seen = new Set<string>();
+    const out: AlbumSection[] = [];
+    const push = (key: string) => {
+      if (seen.has(key)) return;
+      seen.add(key);
+      const s = SECTIONS.find((x) => x.key === key);
+      if (s) out.push(s);
+    };
+    const direct = findByCode(raw);
+    if (direct) push(direct.section);
+    for (const s of SECTIONS) {
+      if (out.length >= 8) break;
+      if (norm(s.title).includes(term) || s.key.toLowerCase().includes(term)) push(s.key);
+    }
+    return out;
+  }, [q]);
+
+  function go(key: string) { setQ(''); nav(`/album/${key}`); }
 
   const sectionProgress = (key: string) => {
     const meta = SECTIONS.find((x) => x.key === key)!;
@@ -45,17 +62,45 @@ export default function Album() {
         </div>
       </header>
 
-      <form onSubmit={goToNumber} className="flex gap-2">
-        <div className="flex flex-1 items-center gap-2 rounded-xl border-2 border-line bg-paper px-3">
+      <div>
+        <div className="flex items-center gap-2 rounded-xl border-2 border-line bg-paper px-3 focus-within:border-brand-400">
           <Icon name="search" size={18} className="text-ink-soft" />
           <input
-            value={jump} onChange={(e) => setJump(e.target.value.slice(0, 8))}
-            placeholder="Buscar nº (ex.: MEX5, FWC9)…"
-            className="flex-1 bg-transparent py-3 font-600 outline-none uppercase"
+            value={q}
+            onChange={(e) => setQ(e.target.value.slice(0, 20))}
+            onKeyDown={(e) => { if (e.key === 'Enter' && results[0]) go(results[0].key); }}
+            placeholder="Buscar seleção (ex.: Brasil)"
+            className="flex-1 bg-transparent py-3 font-600 outline-none"
           />
+          {q && (
+            <button onClick={() => setQ('')} aria-label="Limpar busca" className="text-ink-soft">
+              <Icon name="close" size={18} />
+            </button>
+          )}
         </div>
-        <button className="rounded-xl bg-brand-500 px-5 font-700 text-white">Ir</button>
-      </form>
+
+        {results.length > 0 && (
+          <div className="mt-2 overflow-hidden rounded-xl border-2 border-line bg-paper">
+            {results.map((s) => (
+              <button key={s.key} onClick={() => go(s.key)}
+                className="flex w-full items-center gap-3 border-b border-line px-3 py-2.5 text-left last:border-0 active:bg-brand-50">
+                {s.key === 'especiais'
+                  ? <span className="grid h-[18px] w-[26px] place-items-center text-gold-500"><Icon name="star" size={18} /></span>
+                  : <TeamBadge code={s.key} size="sm" />}
+                <span className="font-700 flex-1">{s.title}</span>
+                <span className="text-xs font-600 text-ink-soft tnum">{s.count}</span>
+                <Icon name="forward" size={16} className="text-ink-soft" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {q.trim() && results.length === 0 && (
+          <p className="mt-2 px-1 text-sm font-600 text-ink-soft">
+            Nada encontrado. Tente o nome do país (ex.: Brasil) ou o código (ex.: MEX5).
+          </p>
+        )}
+      </div>
 
       {/* especiais */}
       <Card onClick={() => nav('/album/especiais')} className="p-4 flex items-center justify-between">
