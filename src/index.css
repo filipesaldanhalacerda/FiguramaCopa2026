@@ -1,0 +1,110 @@
+@import 'tailwindcss';
+
+/* ===========================================================================
+   FIGURAMA — Design System
+   Conceito: "álbum de figurinhas encontra arcade de Copa" — lúdico, festivo,
+   energia de torcida, mas limpo e legível para crianças.
+   =========================================================================== */
+
+@theme {
+  /* Marca: laranja-energia (neutro entre rivalidades) */
+  --color-brand-50: #fff3ec;
+  --color-brand-100: #ffe1cf;
+  --color-brand-200: #ffc3a1;
+  --color-brand-300: #ff9d68;
+  --color-brand-400: #ff7d3c;
+  --color-brand-500: #ff6b2c; /* primária */
+  --color-brand-600: #f04e0c;
+  --color-brand-700: #c63c08;
+  --color-brand-800: #9c310d;
+
+  /* Acentos festivos */
+  --color-sky-fest: #1fa2ff;   /* azul-céu */
+  --color-gold: #ffc83d;       /* ouro-troféu */
+  --color-magenta: #ff4d8d;    /* magenta-festa */
+  --color-field: #14b85c;      /* verde-campo */
+  --color-grape: #6d4aff;      /* roxo-uva (raro) */
+
+  /* Semântica da coleção */
+  --color-have: #14b85c;       /* tem */
+  --color-dupe: #1fa2ff;       /* repetida */
+  --color-missing: #c9c2d6;    /* falta */
+
+  /* Neutros quentes (fundo creme, não branco "de IA") */
+  --color-cream: #fff8f0;
+  --color-paper: #ffffff;
+  --color-ink: #1a1330;        /* texto principal (ameixa escuro) */
+  --color-ink-soft: #5b5274;
+  --color-line: #efe7dd;
+
+  /* Tipografia */
+  --font-display: 'Baloo 2', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
+  /* Raios e sombras (cara de adesivo) */
+  --radius-sticker: 1.5rem;
+
+  --shadow-sticker: 0 2px 0 rgba(26, 19, 48, 0.18), 0 10px 22px -8px rgba(240, 78, 12, 0.28);
+  --shadow-pop: 0 14px 30px -10px rgba(26, 19, 48, 0.35);
+
+  /* Animações */
+  --animate-pop-in: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-float: float 4s ease-in-out infinite;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ---------------------------------------------------------------- base ---- */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background-color: var(--color-cream);
+  /* Atmosfera: malha de gradientes festivos + textura de pontos sutil */
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(255, 200, 61, 0.18), transparent 42%),
+    radial-gradient(circle at 88% 4%, rgba(31, 162, 255, 0.14), transparent 40%),
+    radial-gradient(circle at 50% 100%, rgba(255, 77, 141, 0.1), transparent 55%),
+    radial-gradient(rgba(26, 19, 48, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 22px 22px;
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+* { -webkit-user-select: none; user-select: none; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* Esconde scrollbar mantendo o scroll (carrosséis) */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Respeita preferência de movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Áreas seguras (notch) para o app instalado */
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
