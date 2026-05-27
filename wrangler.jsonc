@@ -1,0 +1,11 @@
+{
+  // Configuração do Cloudflare Workers (assets estáticos) para o Figurama.
+  // SPA: rotas desconhecidas (ex.: /album, /u/apelido) servem o index.html.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "figuramacopa2026",
+  "compatibility_date": "2025-05-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
