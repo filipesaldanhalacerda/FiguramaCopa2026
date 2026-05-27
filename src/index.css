@@ -133,8 +133,10 @@ h1, h2, h3, h4, .font-display {
   }
 }
 
-.safe-top { padding-top: env(safe-area-inset-top); }
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+/* Respiro no topo: usa o recorte do aparelho (notch) OU um mínimo confortável,
+   o que for maior — assim no navegador (env=0) ainda sobra espaço da barra de URL. */
+.safe-top { padding-top: max(env(safe-area-inset-top), 1.75rem); }
+.safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
 
 /* =========================================================================
    ÁLBUM — "espaços" de figurinha (estética de álbum, design original)
