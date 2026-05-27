@@ -16,36 +16,38 @@ export const AVATARS: { id: string; color: string }[] = [
   { id: 'medal', color: '#b81226' },
   { id: 'cone', color: '#c41276' },
   { id: 'card', color: '#0a6b3f' },
-  { id: 'stopwatch', color: '#d6336c' },
+  { id: 'star', color: '#d6336c' },
 ];
 export const AVATAR_IDS = AVATARS.map((a) => a.id);
 const AVATAR_MAP = new Map(AVATARS.map((a) => [a.id, a]));
 
-const LOGOS: Record<string, ReactNode> = {
+// Cada logo é uma silhueta CHEIA em `fg` (branco); detalhes internos usam `bg`
+// (cor do círculo) para "recortar" e ficarem nítidos no tamanho pequeno.
+const LOGOS: Record<string, (fg: string, bg: string) => ReactNode> = {
   // bola de futebol
-  ball: <><circle cx="12" cy="12" r="8.5" /><path d="M12 7.2l3 2.2-1.1 3.5h-3.8L9 9.4z" fill="currentColor" stroke="none" /><path d="M12 7.2V3.8M8.9 9.4 5.7 8.2M15.1 9.4 18.3 8.2M10.1 12.9 8 16.2M13.9 12.9 16 16.2" /></>,
+  ball: (fg, bg) => <><circle cx="12" cy="12" r="9" fill={fg} /><path d="M12 8l3 2.2-1.15 3.6h-3.7L9 10.2z" fill={bg} /><g stroke={bg} strokeWidth="1.8" strokeLinecap="round"><path d="M12 8V4.4" /><path d="M9 10.2 5.6 9.1" /><path d="M15 10.2 18.4 9.1" /><path d="M10.15 13.8 8 16.8" /><path d="M13.85 13.8 16 16.8" /></g></>,
   // taça
-  trophy: <><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" /><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3" /><path d="M12 13v4M9 21h6M10 17h4" /></>,
+  trophy: (fg) => <><path d="M6.5 4h11v3.2a5.5 5.5 0 0 1-11 0z" fill={fg} /><path d="M11 11.5h2V16h3.2v2.4H7.8V16H11z" fill={fg} /><path d="M6.6 5H4.3v1.3a3.3 3.3 0 0 0 3.3 3.3M17.4 5h2.3v1.3a3.3 3.3 0 0 1-3.3 3.3" stroke={fg} strokeWidth="1.9" fill="none" strokeLinecap="round" /></>,
   // camisa
-  jersey: <path d="M9 4.5 4 8l2 5 2.6-1.2V20h6.8v-8.2L18 13l2-5-5-3.5c-.8 1.7-5.2 1.7-6 0z" fill="currentColor" stroke="none" />,
+  jersey: (fg) => <path d="M9 4.5 4 8l2 5 2.6-1.2V20h6.8v-8.2L18 13l2-5-5-3.5c-.8 1.7-5.2 1.7-6 0z" fill={fg} />,
   // escudo
-  shield: <path d="M12 3 5 6v6c0 4 3 7 7 9 4-2 7-5 7-9V6z" fill="currentColor" stroke="none" />,
+  shield: (fg) => <path d="M12 3 5 6v6c0 4 3 7 7 9 4-2 7-5 7-9V6z" fill={fg} />,
   // chuteira
-  boot: <><path d="M3 13.8c0-2 1.3-3.5 3.4-4.2L10.6 8 12 11.4l6.6 1.2c1.5.3 2.4 1.3 2.4 2.8v1.2H3z" fill="currentColor" stroke="none" /><path d="M6 18v1.7M10 18v1.7M14 18v1.7M18 18v1.7" /></>,
+  boot: (fg) => <><path d="M3 13c0-1.8 1.3-3 3.2-3.5L10.6 8.3 12 12l6.4 1.1c1.5.3 2.4 1.3 2.4 2.8v0.6H3z" fill={fg} /><rect x="3" y="16.4" width="17.8" height="1.7" rx="0.85" fill={fg} /><g stroke={fg} strokeWidth="2" strokeLinecap="round"><path d="M6 18.5v1.3M10 18.5v1.3M14 18.5v1.3M18 18.5v1.3" /></g></>,
   // apito
-  whistle: <><rect x="6.5" y="9" width="12.5" height="7.5" rx="3.75" fill="currentColor" stroke="none" /><path d="M6.5 11.2H4a1.3 1.3 0 0 0 0 2.6h2.5z" fill="currentColor" stroke="none" /><path d="M9 5.5l1.6 3.2" /></>,
-  // gol (trave + rede)
-  goal: <><path d="M4 19V8h16v11" /><path d="M8 8v11M12 8v11M16 8v11M4 12h16M4 16h16" /></>,
+  whistle: (fg, bg) => <><rect x="6.5" y="9" width="12.5" height="7.6" rx="3.8" fill={fg} /><path d="M6.8 11.1H4a1.3 1.3 0 0 0 0 2.6h2.8z" fill={fg} /><circle cx="14.8" cy="12.8" r="1.7" fill={bg} /></>,
+  // gol (trave grossa + rede esparsa)
+  goal: (fg) => <><path d="M4 19V8.5h16V19" stroke={fg} strokeWidth="2.6" fill="none" strokeLinejoin="round" /><g stroke={fg} strokeWidth="1.3"><path d="M9 8.5V19M15 8.5V19M4 14h16" /></g></>,
   // bandeira de escanteio
-  flag: <><path d="M6 21V3.5" /><path d="M6 4.5h12.6l-3.3 4 3.3 4H6z" fill="currentColor" stroke="none" /></>,
-  // medalha
-  medal: <><circle cx="12" cy="14.5" r="5" fill="currentColor" stroke="none" /><path d="M9 9.5 6.5 3h11L15 9.5" /></>,
-  // cone de treino
-  cone: <><path d="M12 4 7.5 18h9z" fill="currentColor" stroke="none" /><path d="M5 19.2h14" /></>,
+  flag: (fg) => <><path d="M6 21V3.4" stroke={fg} strokeWidth="2.2" strokeLinecap="round" /><path d="M6 4.4h12.8l-3.4 4 3.4 4H6z" fill={fg} /></>,
+  // medalha (com estrela vazada)
+  medal: (fg, bg) => <><path d="M9 9.4 6.3 3M15 9.4 17.7 3" stroke={fg} strokeWidth="2.1" strokeLinecap="round" /><circle cx="12" cy="14.6" r="5.3" fill={fg} /><path d="M12 11.7l.95 1.95 2.15.25-1.6 1.5.42 2.1L12 16.55l-1.92 1 .42-2.1-1.6-1.5 2.15-.25z" fill={bg} /></>,
+  // cone de treino (com listras)
+  cone: (fg, bg) => <><path d="M12 4 7.3 18h9.4z" fill={fg} /><rect x="4.6" y="18.4" width="14.8" height="1.8" rx="0.9" fill={fg} /><g stroke={bg} strokeWidth="1.7"><path d="M10.7 10h2.6M9.7 14h4.6" /></g></>,
   // cartão do juiz
-  card: <rect x="8.5" y="4.5" width="8" height="13" rx="1.5" transform="rotate(14 12.5 11)" fill="currentColor" stroke="none" />,
-  // cronômetro
-  stopwatch: <><circle cx="12" cy="13.5" r="6.5" /><path d="M12 13.5V9.5M9.5 3.5h5M18.2 7.4l1.3-1.3" /></>,
+  card: (fg) => <rect x="8.5" y="4.5" width="8" height="13" rx="1.6" transform="rotate(14 12.5 11)" fill={fg} />,
+  // estrela (craque)
+  star: (fg) => <path d="M12 3l2.6 5.3 5.8.85-4.2 4.05 1 5.8L12 16.85 6.8 19l1-5.8L3.6 9.15l5.8-.85z" fill={fg} />,
 };
 
 function fallbackId(seed: string): string {
@@ -54,11 +56,11 @@ function fallbackId(seed: string): string {
   return AVATAR_IDS[h % AVATAR_IDS.length];
 }
 
-function Logo({ id, color, size }: { id: string; color: string; size: number }) {
+function Logo({ id, fg, bg, size }: { id: string; fg: string; bg: string; size: number }) {
+  const render = LOGOS[id] ?? LOGOS.ball;
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={{ color }}
-      fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {LOGOS[id] ?? LOGOS.ball}
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" strokeLinejoin="round" aria-hidden="true">
+      {render(fg, bg)}
     </svg>
   );
 }
@@ -70,7 +72,7 @@ export function Avatar({ avatar, size = 44 }: { avatar: string; size?: number })
   return (
     <div className="grid place-items-center rounded-full shrink-0 ring-1 ring-black/5"
       style={{ width: size, height: size, background: def.color }}>
-      <Logo id={def.id} color={fg} size={Math.round(size * 0.64)} />
+      <Logo id={def.id} fg={fg} bg={def.color} size={Math.round(size * 0.64)} />
     </div>
   );
 }
