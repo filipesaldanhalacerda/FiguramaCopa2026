@@ -192,6 +192,26 @@ export async function sendChatMessage(chatId: string, body: string, isQuick = fa
   await supabase.from('messages').insert({ chat_id: chatId, sender_id: authedUid, body, is_quick: isQuick });
 }
 
+/** Assina TODAS as minhas mensagens novas (a RLS já entrega só as dos meus chats).
+ *  Usado para notificar "Fulano quer trocar com você" quando chega proposta/mensagem. */
+export function subscribeMyMessages(onMsg: (m: ChatMsg) => void): () => void {
+  const sb = supabase;
+  if (!sb || !authedUid) return () => {};
+  const ch = sb
+    .channel('my-messages')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' },
+      (payload) => { const m = payload.new as ChatMsg; if (m.sender_id !== authedUid) onMsg(m); })
+    .subscribe();
+  return () => { sb.removeChannel(ch); };
+}
+
+/** Nome de exibição de um usuário (para a notificação). */
+export async function fetchProfileName(id: string): Promise<string> {
+  if (!supabase) return 'Alguém';
+  const { data } = await supabase.from('profiles').select('display_name').eq('id', id).single();
+  return (data as { display_name?: string } | null)?.display_name ?? 'Alguém';
+}
+
 export async function blockUser(otherId: string): Promise<void> {
   if (!supabase || !authedUid) return;
   try { await supabase.from('blocks').insert({ blocker_id: authedUid, blocked_id: otherId }); } catch { /* ignora */ }

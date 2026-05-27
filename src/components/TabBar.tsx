@@ -21,12 +21,16 @@ export default function TabBar() {
 
   useEffect(() => {
     let alive = true;
-    if (isBackendEnabled) {
-      unreadTotal().then((n) => { if (alive) setUnread(n); });
-    } else {
-      db.chats.toArray().then((cs) => { if (alive) setUnread(cs.reduce((a, c) => a + (c.unread || 0), 0)); });
-    }
-    return () => { alive = false; };
+    const refresh = () => {
+      if (isBackendEnabled) {
+        unreadTotal().then((n) => { if (alive) setUnread(n); });
+      } else {
+        db.chats.toArray().then((cs) => { if (alive) setUnread(cs.reduce((a, c) => a + (c.unread || 0), 0)); });
+      }
+    };
+    refresh();
+    window.addEventListener('figurama:unread', refresh);
+    return () => { alive = false; window.removeEventListener('figurama:unread', refresh); };
   }, [loc.pathname]);
 
   return (
