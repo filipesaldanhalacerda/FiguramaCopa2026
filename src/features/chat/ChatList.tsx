@@ -22,7 +22,7 @@ export default function ChatList() {
         const cs = await listChats();
         setRows(cs.map((c) => ({
           id: c.chat_id, name: c.other_name, avatar: c.other_avatar, favTeam: c.other_fav_team,
-          last: (c.last_body ?? '').replace(/\n/g, ' ') || 'Combine sua troca.',
+          last: (c.last_body ?? '').replace(/\n/g, ' ') || 'Combine sua troca.', unread: c.unread,
         })));
       } else {
         const chats = await db.chats.orderBy('lastAt').reverse().toArray();

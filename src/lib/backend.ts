@@ -155,8 +155,21 @@ export async function listChats() {
   const { data } = await supabase.rpc('my_chats');
   return (data ?? []) as {
     chat_id: string; other_id: string; other_slug: string; other_name: string;
-    other_avatar: string; other_fav_team: string; last_body: string | null; last_at: string | null;
+    other_avatar: string; other_fav_team: string; last_body: string | null; last_at: string | null; unread: number;
   }[];
+}
+
+/** Marca a conversa como lida (zera o não-lidas dela). */
+export async function markRead(chatId: string): Promise<void> {
+  if (!supabase || !authedUid) return;
+  try { await supabase.rpc('mark_read', { p_chat: chatId }); } catch { /* ignora */ }
+}
+
+/** Total de mensagens não lidas em todas as conversas. */
+export async function unreadTotal(): Promise<number> {
+  if (!supabase || !authedUid) return 0;
+  const { data } = await supabase.rpc('unread_total');
+  return (data as number) ?? 0;
 }
 
 export async function loadChatPeer(chatId: string): Promise<ChatPeer | null> {

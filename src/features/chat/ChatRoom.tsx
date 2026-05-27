@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import { isBackendEnabled } from '../../lib/supabase';
 import {
   getUid, loadChatPeer, loadMessages, sendChatMessage, subscribeMessages,
-  blockUser, reportUser, type ChatMsg, type ChatPeer,
+  blockUser, reportUser, markRead, type ChatMsg, type ChatPeer,
 } from '../../lib/backend';
 
 export default function ChatRoom() {
@@ -34,8 +34,10 @@ function BackendRoom() {
   useEffect(() => {
     loadChatPeer(chatId).then(setPeer);
     loadMessages(chatId).then(setMsgs);
+    markRead(chatId);
     const unsub = subscribeMessages(chatId, (m) => {
       setMsgs((cur) => (cur.some((x) => x.id === m.id) ? cur : [...cur, m]));
+      markRead(chatId); // estou com a conversa aberta → já fica lida
     });
     return unsub;
   }, [chatId]);
@@ -60,6 +62,9 @@ function BackendRoom() {
   }
 
   const t = peer ? getTeam(peer.favTeam) : undefined;
+  // há uma proposta sem resposta ainda? (para mostrar Aceitar/Recusar a quem recebeu)
+  const tradePending = msgs.some((m) => m.body.startsWith('Proposta de troca'))
+    && !msgs.some((m) => m.body.startsWith('Troca aceita') || m.body.startsWith('Troca recusada'));
 
   return (
     <Shell
@@ -68,6 +73,8 @@ function BackendRoom() {
       warn={warn} text={text} setText={setText} onSend={send}
       bubbles={msgs.map((m) => ({ key: m.id, mine: m.sender_id === myUid, body: m.body }))}
       endRef={endRef} menu={menu} setMenu={setMenu} onBlock={block} onReport={report} peerName2={peer?.name}
+      tradePending={tradePending}
+      onRespondTrade={(accept) => send(accept ? 'Troca aceita! Vamos combinar a entrega.' : 'Troca recusada, fica pra próxima.')}
     />
   );
 }
@@ -128,11 +135,12 @@ function LocalRoom() {
 
 interface Bub { key: string | number; mine: boolean; body: string }
 
-function Shell({ peerName, peerAvatar, flag, onBack, onMenu, warn, text, setText, onSend, bubbles, endRef, menu, setMenu, onBlock, onReport, peerName2 }: {
+function Shell({ peerName, peerAvatar, flag, onBack, onMenu, warn, text, setText, onSend, bubbles, endRef, menu, setMenu, onBlock, onReport, peerName2, tradePending, onRespondTrade }: {
   peerName?: string; peerAvatar?: string; flag?: string; onBack: () => void; onMenu: () => void;
   warn: string; text: string; setText: (v: string) => void; onSend: (b: string, q?: boolean) => void;
   bubbles: Bub[]; endRef: React.RefObject<HTMLDivElement | null>;
   menu: boolean; setMenu: (v: boolean) => void; onBlock: () => void; onReport: () => void; peerName2?: string;
+  tradePending?: boolean; onRespondTrade?: (accept: boolean) => void;
 }) {
   return (
     <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-page">
@@ -155,7 +163,10 @@ function Shell({ peerName, peerAvatar, flag, onBack, onMenu, warn, text, setText
       </div>
 
       <div className="flex-1 space-y-2 px-4 py-4">
-        {bubbles.map((b) => <Bubble key={b.key} mine={b.mine} body={b.body} />)}
+        {bubbles.map((b) => (
+          <Bubble key={b.key} mine={b.mine} body={b.body}
+            onRespond={!b.mine && tradePending ? onRespondTrade : undefined} />
+        ))}
         {bubbles.length === 0 && <p className="text-center text-ink-soft font-600 py-8">Mande um oi para combinar a troca.</p>}
         <div ref={endRef} />
       </div>
@@ -186,12 +197,35 @@ function Shell({ peerName, peerAvatar, flag, onBack, onMenu, warn, text, setText
   );
 }
 
-function Bubble({ mine, body }: { mine: boolean; body: string }) {
-  const isTrade = body.startsWith('Proposta de troca');
-  if (isTrade) {
+function Bubble({ mine, body, onRespond }: { mine: boolean; body: string; onRespond?: (accept: boolean) => void }) {
+  // proposta de troca
+  if (body.startsWith('Proposta de troca')) {
     return (
-      <div className="mx-auto my-2 max-w-[88%] rounded-xl border-2 border-dashed border-brand-400 bg-brand-50 px-4 py-3">
+      <div className="mx-auto my-2 max-w-[90%] rounded-xl border-2 border-dashed border-brand-400 bg-brand-50 px-4 py-3">
         <p className="whitespace-pre-line font-600 text-sm text-brand-800 tnum">{body}</p>
+        {onRespond && (
+          <div className="mt-3 flex gap-2">
+            <Button className="flex-1" onClick={() => onRespond(true)}><Icon name="check" size={16} strokeWidth={3} /> Aceitar</Button>
+            <Button variant="soft" className="flex-1" onClick={() => onRespond(false)}>Recusar</Button>
+          </div>
+        )}
+      </div>
+    );
+  }
+  // resposta: aceita
+  if (body.startsWith('Troca aceita')) {
+    return (
+      <div className="mx-auto my-2 max-w-[90%] flex items-center gap-2 rounded-xl bg-[var(--color-have)]/12 border-2 border-[var(--color-have)] px-4 py-2.5">
+        <span className="text-[var(--color-have)]"><Icon name="check" size={18} strokeWidth={3} /></span>
+        <p className="font-700 text-sm text-[var(--color-have)]">{body}</p>
+      </div>
+    );
+  }
+  // resposta: recusada
+  if (body.startsWith('Troca recusada')) {
+    return (
+      <div className="mx-auto my-2 max-w-[90%] rounded-xl bg-ink-soft/10 border-2 border-line px-4 py-2.5 text-center">
+        <p className="font-700 text-sm text-ink-soft">{body}</p>
       </div>
     );
   }

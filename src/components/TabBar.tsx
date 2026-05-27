@@ -4,6 +4,8 @@ import { tapHaptic } from '../lib/haptics';
 import { db } from '../lib/db';
 import { useEffect, useState } from 'react';
 import { Icon, type IconName } from './icons';
+import { isBackendEnabled } from '../lib/supabase';
+import { unreadTotal } from '../lib/backend';
 
 const TABS: { to: string; label: string; icon: IconName; end?: boolean; center?: boolean }[] = [
   { to: '/', label: 'Início', icon: 'home', end: true },
@@ -19,9 +21,11 @@ export default function TabBar() {
 
   useEffect(() => {
     let alive = true;
-    db.chats.toArray().then((cs) => {
-      if (alive) setUnread(cs.reduce((a, c) => a + (c.unread || 0), 0));
-    });
+    if (isBackendEnabled) {
+      unreadTotal().then((n) => { if (alive) setUnread(n); });
+    } else {
+      db.chats.toArray().then((cs) => { if (alive) setUnread(cs.reduce((a, c) => a + (c.unread || 0), 0)); });
+    }
     return () => { alive = false; };
   }, [loc.pathname]);
 
