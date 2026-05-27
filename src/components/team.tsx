@@ -1,11 +1,52 @@
-/** Identidade visual de times e avatares — sem emojis, no tema da Copa. */
-import { getTeamColor, readableOn } from '../data/worldcup2026';
+/** Identidade visual de times e avatares — bandeiras oficiais + avatares de camisa. */
+import { useState } from 'react';
+import { getTeamColor, getFlagUrl, readableOn } from '../data/worldcup2026';
 
 /** Cores de "kit" para avatares (o usuário escolhe uma). */
 export const AVATAR_COLORS = [
   '#0b7a4b', '#1b2a55', '#c40b1e', '#d29a26', '#1f72d6', '#ec6a1a',
   '#6d3fb0', '#0a8fb0', '#b81226', '#2a2a2a', '#0a6b3f', '#c41276',
 ];
+
+const SIZES = {
+  sm: { w: 26, h: 18, px: 80 },
+  md: { w: 34, h: 23, px: 80 },
+  lg: { w: 52, h: 35, px: 160 },
+} as const;
+
+/** Bandeira oficial do país (flagcdn — domínio público). Fallback: sigla. */
+export function Flag({ code, size = 'md' }: { code: string; size?: keyof typeof SIZES }) {
+  const [failed, setFailed] = useState(false);
+  const { w, h, px } = SIZES[size];
+  const url = getFlagUrl(code, px as 80 | 160);
+
+  if (failed || !url) {
+    const color = getTeamColor(code);
+    return (
+      <span
+        className="inline-grid place-items-center rounded font-display font-700 tnum shrink-0"
+        style={{ width: w, height: h, background: color, color: readableOn(color), fontSize: h * 0.6 }}
+      >
+        {code}
+      </span>
+    );
+  }
+  return (
+    <img
+      src={url}
+      alt={code}
+      width={w}
+      height={h}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className="rounded object-cover shrink-0 ring-1 ring-black/10"
+      style={{ width: w, height: h }}
+    />
+  );
+}
+
+/** Alias mantido por compatibilidade — agora mostra a bandeira. */
+export const TeamBadge = Flag;
 
 /** Camisa de futebol estilizada. */
 export function Jersey({ color, size = 28 }: { color: string; size?: number }) {
@@ -28,25 +69,5 @@ export function Avatar({ color, size = 44 }: { color: string; size?: number }) {
     >
       <Jersey color={readableOn(color)} size={size * 0.62} />
     </div>
-  );
-}
-
-/** Badge com o código FIFA do time (ex.: BRA), na cor da seleção. */
-export function TeamBadge({
-  code, size = 'md',
-}: { code: string; size?: 'sm' | 'md' | 'lg' }) {
-  const color = getTeamColor(code);
-  const dims = {
-    sm: 'text-[11px] px-1.5 py-0.5 min-w-9',
-    md: 'text-sm px-2 py-1 min-w-11',
-    lg: 'text-lg px-2.5 py-1 min-w-14',
-  }[size];
-  return (
-    <span
-      className={`inline-grid place-items-center rounded-md font-display font-700 tracking-wide tnum ${dims}`}
-      style={{ background: color, color: readableOn(color) }}
-    >
-      {code}
-    </span>
   );
 }

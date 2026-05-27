@@ -58,10 +58,7 @@ export default function StickerCell({ sticker, count, batch, onTap, onLongPress 
     >
       {have ? (
         <span className="absolute inset-0 flex flex-col items-center justify-center" style={{ color: ink }}>
-          <span className="font-display font-800 text-[26px] leading-none tnum drop-shadow-sm">{sticker.id}</span>
-          <span className="mt-0.5 max-w-full truncate px-1 text-[8.5px] font-600 uppercase tracking-wide opacity-85">
-            {sticker.teamCode ?? 'FWC'}
-          </span>
+          <span className="font-display font-800 text-[28px] leading-none tnum drop-shadow-sm">{sticker.id}</span>
         </span>
       ) : (
         <span className="absolute inset-0 flex flex-col items-center justify-center text-[#9aa3b2]">

@@ -197,6 +197,28 @@ export const TEAM_COLORS: Record<string, string> = {
 export const getTeamColor = (code?: string): string =>
   (code && TEAM_COLORS[code]) || '#0b7a4b';
 
+/** FIFA → ISO (slug do flagcdn). Inglaterra/Escócia usam subdivisões do Reino Unido. */
+export const FLAG_ISO: Record<string, string> = {
+  MEX: 'mx', RSA: 'za', KOR: 'kr', CZE: 'cz',
+  CAN: 'ca', BIH: 'ba', QAT: 'qa', SUI: 'ch',
+  BRA: 'br', MAR: 'ma', HAI: 'ht', SCO: 'gb-sct',
+  USA: 'us', PAR: 'py', AUS: 'au', TUR: 'tr',
+  GER: 'de', CUW: 'cw', CIV: 'ci', ECU: 'ec',
+  NED: 'nl', JPN: 'jp', SWE: 'se', TUN: 'tn',
+  BEL: 'be', EGY: 'eg', IRN: 'ir', NZL: 'nz',
+  ESP: 'es', CPV: 'cv', KSA: 'sa', URU: 'uy',
+  FRA: 'fr', SEN: 'sn', IRQ: 'iq', NOR: 'no',
+  ARG: 'ar', ALG: 'dz', AUT: 'at', JOR: 'jo',
+  POR: 'pt', COD: 'cd', UZB: 'uz', COL: 'co',
+  ENG: 'gb-eng', CRO: 'hr', GHA: 'gh', PAN: 'pa',
+};
+
+/** URL da bandeira oficial (flagcdn, domínio público). w = largura em px (PNG). */
+export const getFlagUrl = (code: string, w: 40 | 80 | 160 | 320 = 80): string => {
+  const iso = FLAG_ISO[code];
+  return iso ? `https://flagcdn.com/w${w}/${iso}.png` : '';
+};
+
 /** Escolhe texto escuro ou branco com bom contraste sobre uma cor. */
 export function readableOn(hex: string): string {
   const h = hex.replace('#', '');

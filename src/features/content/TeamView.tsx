@@ -27,7 +27,7 @@ export default function TeamView() {
       <header className="px-4 pt-5 pb-5 safe-top" style={{ background: color, color: ink }}>
         <button onClick={() => nav(-1)} className="grid h-9 w-9 place-items-center rounded-lg bg-black/15 mb-3"><Icon name="back" size={20} /></button>
         <div className="flex items-center gap-3">
-          <span className="font-display font-800 text-4xl tnum">{code}</span>
+          <TeamBadge code={code} size="lg" />
           <div>
             <h1 className="font-display font-800 text-3xl leading-none uppercase tracking-wide">{t.name}</h1>
             <p className="font-600 opacity-90 mt-1">Grupo {t.group} · {t.confed}</p>

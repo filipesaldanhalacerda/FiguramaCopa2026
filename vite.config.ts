@@ -32,6 +32,18 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/u\//], // páginas públicas de lista renderizam fresh
+        runtimeCaching: [
+          {
+            // bandeiras oficiais (flagcdn, domínio público) — cache longo p/ offline
+            urlPattern: ({ url }) => url.hostname === 'flagcdn.com',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'country-flags',
+              expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 120 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
       devOptions: { enabled: false },
     }),

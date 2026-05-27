@@ -5,6 +5,7 @@ import { SECTIONS, stickersOfSection, type Sticker } from '../../data/stickers';
 import { getTeam, getTeamColor, readableOn } from '../../data/worldcup2026';
 import { Chip, Sheet, Button } from '../../components/ui';
 import { Icon } from '../../components/icons';
+import { Flag } from '../../components/team';
 import StickerCell from './StickerCell';
 import { burstConfetti } from '../../lib/confetti';
 import { tapHaptic } from '../../lib/haptics';
@@ -68,7 +69,9 @@ export default function SectionView() {
               {team ? `Grupo ${team.group} · ${team.confed}` : 'Mascotes, troféu e sedes'}
             </p>
           </div>
-          <span className="font-display font-800 text-3xl tnum">{section === 'especiais' ? 'FWC' : section}</span>
+          {section === 'especiais'
+            ? <span className="font-display font-800 text-3xl tnum">FWC</span>
+            : <Flag code={section} size="lg" />}
         </div>
 
         {/* progresso */}
