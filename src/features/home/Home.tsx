@@ -4,8 +4,8 @@ import { useStore, statsFromCounts, countsToMap } from '../../lib/store';
 import { db, type PeerRow } from '../../lib/db';
 import { computeMatches, computeWishlist } from '../../lib/match';
 import { getTeam, FUN_FACTS, FIXTURES, TOURNAMENT } from '../../data/worldcup2026';
-import { Card, ProgressRing, Button } from '../../components/ui';
-import { Icon } from '../../components/icons';
+import { Card, ProgressRing } from '../../components/ui';
+import { Icon, type IconName } from '../../components/icons';
 import { Avatar, TeamBadge } from '../../components/team';
 import { motion } from 'framer-motion';
 
@@ -31,46 +31,64 @@ export default function Home() {
     [profile.favTeam],
   );
   const fact = useMemo(() => FUN_FACTS[new Date().getDate() % FUN_FACTS.length], []);
+  const days = Math.max(0, Math.ceil((new Date(TOURNAMENT.start).getTime() - Date.now()) / 86400000));
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+  const progressMsg = stats.have === 0
+    ? 'Bora começar seu álbum!'
+    : stats.percent >= 100 ? 'Álbum completo. Você é craque!' : `Faltam ${stats.missing} figurinhas`;
 
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
         <Avatar color={profile.avatar} size={48} />
-        <div className="flex-1">
-          <p className="text-ink-soft font-600 leading-none text-sm">Bem-vindo de volta</p>
-          <h1 className="font-display font-800 text-2xl leading-tight uppercase tracking-wide">{profile.displayName}</h1>
+        <div className="flex-1 min-w-0">
+          <p className="text-ink-soft font-600 leading-none text-sm">{greeting},</p>
+          <h1 className="font-display font-800 text-2xl leading-tight uppercase tracking-wide truncate">{profile.displayName}</h1>
         </div>
-        {favTeam && <TeamBadge code={favTeam.code} />}
+        {favTeam && <TeamBadge code={favTeam.code} size="md" />}
       </header>
 
-      {/* progresso */}
-      <Card className="p-5 flex items-center gap-5">
-        <ProgressRing percent={stats.percent}>
+      {/* contagem regressiva */}
+      <button onClick={() => nav('/copa')}
+        className="w-full flex items-center gap-3 rounded-[var(--radius-card)] bg-navy-800 text-white px-4 py-3 shadow-[var(--shadow-card)] active:brightness-110">
+        <span className="grid h-9 w-9 place-items-center rounded-lg bg-gold-500 text-navy-900"><Icon name="trophy" size={18} /></span>
+        <div className="flex-1 text-left">
+          <p className="font-display font-800 leading-none uppercase tnum">{days > 0 ? `Faltam ${days} dias` : 'A Copa começou!'}</p>
+          <p className="text-xs font-600 text-white/70">Copa do Mundo 2026</p>
+        </div>
+        <Icon name="forward" size={18} className="text-white/60" />
+      </button>
+
+      {/* progresso (toca pra ir ao álbum) */}
+      <Card onClick={() => nav('/album')} className="p-5 flex items-center gap-5">
+        <ProgressRing percent={stats.percent} size={96}>
           <div className="text-center">
-            <div className="font-display font-800 text-2xl text-brand-600 leading-none tnum">{stats.percent}%</div>
-            <div className="text-[11px] font-600 text-ink-soft uppercase">do álbum</div>
+            <div className="font-display font-800 text-xl text-brand-600 leading-none tnum">{stats.percent}%</div>
           </div>
         </ProgressRing>
         <div className="flex-1">
-          <p className="font-display font-800 text-lg uppercase tracking-wide">Sua coleção</p>
-          <div className="mt-2 grid grid-cols-3 gap-1 text-center">
-            <Stat n={stats.have} label="tem" color="var(--color-have)" />
+          <p className="font-display font-800 text-lg uppercase tracking-wide leading-none">Seu álbum</p>
+          <p className="text-sm font-600 text-ink-soft mt-1">{progressMsg}</p>
+          <div className="mt-3 grid grid-cols-3 gap-1 text-center">
+            <Stat n={stats.have} label="tenho" color="var(--color-have)" />
             <Stat n={stats.dupes} label="repetidas" color="var(--color-dupe)" />
             <Stat n={stats.missing} label="faltam" color="var(--color-ink-soft)" />
           </div>
         </div>
       </Card>
 
-      {/* atalhos */}
+      {/* ações principais */}
       <div className="grid grid-cols-2 gap-3">
-        <Button onClick={() => nav('/album')} className="!justify-start"><Icon name="album" size={20} /> Marcar</Button>
-        <Button variant="navy" onClick={() => nav('/trocar')} className="!justify-start"><Icon name="swap" size={20} /> Trocas</Button>
+        <ActionTile icon="album" label="Marcar figurinhas" color="#0b7a4b" onClick={() => nav('/album')} />
+        <ActionTile icon="swap" label="Achar trocas" color="#16203f" onClick={() => nav('/trocar')} />
       </div>
 
-      {/* atalho: repetidas pra trocar */}
+      {/* repetidas pra trocar */}
       {stats.dupes > 0 && (
         <Card onClick={() => nav('/trocar/lista')} className="p-4 flex items-center gap-3 border-l-4 border-l-gold-400">
-          <span className="grid h-10 w-10 place-items-center rounded-lg bg-gold-100 text-gold-600"><Icon name="swap" size={20} /></span>
+          <span className="grid h-10 w-10 place-items-center rounded-lg bg-gold-100 text-gold-600"><Icon name="stack" size={20} /></span>
           <div className="flex-1">
             <p className="font-display font-800 tnum">{stats.dupes} repetidas pra trocar</p>
             <p className="text-sm font-600 text-ink-soft">Veja organizadas por seleção</p>
@@ -82,8 +100,8 @@ export default function Home() {
       {/* parceiros */}
       <section>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="font-display font-800 text-xl uppercase tracking-wide">Parceiros pra você</h2>
-          <button className="font-700 text-brand-600 text-sm" onClick={() => nav('/trocar')}>ver todos</button>
+          <h2 className="font-display font-800 text-xl uppercase tracking-wide">Trocas pra você</h2>
+          <button className="font-700 text-brand-600 text-sm" onClick={() => nav('/trocar')}>ver todas</button>
         </div>
         {matches.length === 0 ? (
           <Card className="p-4 text-ink-soft font-600">Marque o que você tem e o que falta para acharmos trocas.</Card>
@@ -93,13 +111,13 @@ export default function Home() {
               const t = getTeam(m.peer.favTeam);
               return (
                 <motion.button whileTap={{ scale: 0.96 }} key={m.peer.id} onClick={() => nav('/trocar')}
-                  className="min-w-[160px] rounded-[var(--radius-card)] bg-paper border-2 border-line p-4 text-left shadow-[var(--shadow-card)]">
+                  className="min-w-[158px] rounded-[var(--radius-card)] bg-paper border-2 border-line p-4 text-left shadow-[var(--shadow-card)]">
                   <div className="flex items-center justify-between">
                     <Avatar color={m.peer.avatar} size={40} />
                     {t && <TeamBadge code={t.code} size="sm" />}
                   </div>
-                  <div className="font-display font-800 mt-2 uppercase">{m.peer.name}</div>
-                  <p className="text-sm text-ink-soft font-600 mt-0.5">
+                  <div className="font-display font-800 mt-2 uppercase truncate">{m.peer.name}</div>
+                  <p className="text-sm text-ink-soft font-600 mt-0.5 leading-tight">
                     {m.kind === 'troca' ? `${m.n} pra trocar com você` : `tem ${m.n} que te faltam`}
                   </p>
                 </motion.button>
@@ -111,7 +129,9 @@ export default function Home() {
 
       {/* próximo jogo */}
       <section>
-        <h2 className="font-display font-800 text-xl mb-2 uppercase tracking-wide">Fique de olho na Copa</h2>
+        <h2 className="font-display font-800 text-xl mb-2 uppercase tracking-wide">
+          {nextFixture.home === profile.favTeam || nextFixture.away === profile.favTeam ? 'Jogo do seu time' : 'Fique de olho na Copa'}
+        </h2>
         <Card className="p-4" onClick={() => nav('/copa/jogos')}>
           <div className="flex items-center justify-between">
             <TeamLine code={nextFixture.home} />
@@ -129,15 +149,9 @@ export default function Home() {
         <p className="font-700 text-xs text-gold-600 uppercase tracking-widest">Você sabia?</p>
         <p className="font-600 mt-1">{fact}</p>
       </Card>
-
-      <p className="text-center text-xs text-ink-soft tnum">
-        {fmt(TOURNAMENT.start)} – {fmt(TOURNAMENT.end)} · 48 seleções · 12 grupos
-      </p>
     </div>
   );
 }
-
-const fmt = (d: string) => d.split('-').reverse().join('/');
 
 function Stat({ n, label, color }: { n: number; label: string; color: string }) {
   return (
@@ -148,11 +162,22 @@ function Stat({ n, label, color }: { n: number; label: string; color: string }) 
   );
 }
 
+function ActionTile({ icon, label, color, onClick }: { icon: IconName; label: string; color: string; onClick: () => void }) {
+  return (
+    <motion.button whileTap={{ scale: 0.96 }} onClick={onClick}
+      className="flex flex-col gap-3 rounded-[var(--radius-card)] p-4 text-left text-white shadow-[var(--shadow-card)]"
+      style={{ backgroundColor: color }}>
+      <Icon name={icon} size={26} />
+      <span className="font-display font-800 text-base uppercase tracking-wide leading-tight">{label}</span>
+    </motion.button>
+  );
+}
+
 function TeamLine({ code, align = 'left' }: { code: string; align?: 'left' | 'right' }) {
   const t = getTeam(code)!;
   return (
     <div className={`flex flex-1 items-center gap-2 ${align === 'right' ? 'flex-row-reverse text-right' : ''}`}>
-      <TeamBadge code={code} />
+      <TeamBadge code={code} size="md" />
       <span className="font-700 text-sm leading-tight">{t.name}</span>
     </div>
   );
