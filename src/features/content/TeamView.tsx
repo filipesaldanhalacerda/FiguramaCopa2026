@@ -3,7 +3,6 @@ import { getTeam, FIXTURES } from '../../data/worldcup2026';
 import { SECTIONS } from '../../data/stickers';
 import { useStore } from '../../lib/store';
 import { Card, Button } from '../../components/ui';
-import PlayerPhoto from '../../components/PlayerPhoto';
 
 export default function TeamView() {
   const { code = '' } = useParams();
@@ -59,17 +58,11 @@ export default function TeamView() {
       <section>
         <h2 className="font-display font-800 text-xl mb-1">Craques 🌟</h2>
         <p className="text-xs font-700 text-ink-soft mb-2">Provisório — a escalação oficial sai em junho.</p>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="flex flex-wrap gap-2">
           {t.craques.map((p) => (
-            <div key={p} className="rounded-2xl border-2 border-line bg-paper overflow-hidden">
-              <div className="aspect-square">
-                <PlayerPhoto name={p} flag={t.flag} rounded="rounded-none" />
-              </div>
-              <p className="truncate px-2 py-1.5 text-center font-700 text-xs">{p}</p>
-            </div>
+            <span key={p} className="rounded-full border-2 border-line bg-paper px-3 py-1.5 font-700 text-sm">{p}</span>
           ))}
         </div>
-        <p className="mt-2 text-[10px] text-ink-soft">Fotos: Wikipédia / Wikimedia Commons (licença livre).</p>
       </section>
 
       {/* jogos */}

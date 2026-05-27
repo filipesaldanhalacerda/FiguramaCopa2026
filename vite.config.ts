@@ -32,28 +32,6 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/u\//], // páginas públicas de lista renderizam fresh
-        runtimeCaching: [
-          {
-            // fotos de jogadores (Wikimedia Commons) — cache longo
-            urlPattern: ({ url }) => url.hostname.endsWith('wikimedia.org'),
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'player-photos',
-              expiration: { maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 60 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-          {
-            // respostas da API da Wikipédia (URLs das fotos)
-            urlPattern: ({ url }) => url.hostname.endsWith('wikipedia.org'),
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'wiki-api',
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
       },
       devOptions: { enabled: false },
     }),
