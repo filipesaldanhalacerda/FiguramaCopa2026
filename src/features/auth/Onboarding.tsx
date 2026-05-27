@@ -46,17 +46,22 @@ export default function Onboarding() {
 
   return (
     <div className="mx-auto min-h-[100svh] max-w-md px-5 pb-8 pt-6 safe-top flex flex-col">
-      {step >= 1 && step <= 4 && (
-        <button onClick={() => { setErr(''); setStep(step - 1); }}
-          className="self-start mb-3 flex items-center gap-1 font-700 text-ink-soft">
-          <Icon name="back" size={20} /> Voltar
-        </button>
-      )}
       {step < 5 && (
-        <div className="flex gap-1.5 mb-6">
-          {Array.from({ length: totalSteps - 1 }).map((_, i) => (
-            <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= step ? 'bg-brand-500' : 'bg-brand-100'}`} />
-          ))}
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => { setErr(''); setStep(Math.max(0, step - 1)); }}
+            aria-label="Voltar"
+            className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 transition-colors ${
+              step === 0 ? 'invisible' : 'bg-paper border-line text-ink shadow-[var(--shadow-card)] active:bg-brand-50'
+            }`}
+          >
+            <Icon name="back" size={24} strokeWidth={2.6} />
+          </button>
+          <div className="flex flex-1 gap-1.5">
+            {Array.from({ length: totalSteps - 1 }).map((_, i) => (
+              <div key={i} className={`h-1.5 flex-1 rounded-full ${i <= step ? 'bg-brand-500' : 'bg-brand-100'}`} />
+            ))}
+          </div>
         </div>
       )}
 
