@@ -8,6 +8,10 @@ import { db, kvGet, kvSet, loadCollection, setStickerCount } from './db';
 import { ensureDemoSeed } from './demo';
 import { TOTAL } from '../data/stickers';
 import { setSoundOn } from './haptics';
+import {
+  initBackend, backendSignUp, backendLogIn, backendLogout,
+  pushSticker, pushAll, pullCollection,
+} from './backend';
 
 export interface Profile {
   slug: string;
@@ -34,7 +38,9 @@ interface State {
   hydrate: () => Promise<void>;
   createProfile: (data: {
     slug: string; avatar: string; favTeam: string; pin: string;
-  }) => Promise<{ recoveryCode: string }>;
+  }) => Promise<{ recoveryCode: string; error: string | null }>;
+  /** entra numa conta existente (outro aparelho) via apelido + PIN (backend) */
+  login: (slug: string, pin: string) => Promise<{ error: string | null }>;
   /** ativa o perfil no estado depois que o onboarding termina (recovery+tutorial) */
   refreshProfile: () => Promise<void>;
   /** troca a logo do avatar */
@@ -85,6 +91,17 @@ export const useStore = create<State>((set, get) => ({
     colMap.forEach((v, k) => (counts[k] = v));
     setSoundOn(settings.soundOn);
     set({ profile, settings, counts, ready: true });
+
+    // Backend (opcional): se há sessão ativa, baixa a coleção do servidor.
+    const authed = await initBackend();
+    if (authed) {
+      const remote = await pullCollection();
+      if (Object.keys(remote).length) {
+        const merged = { ...counts, ...remote }; // servidor vence
+        for (const [id, c] of Object.entries(remote)) await setStickerCount(Number(id), c);
+        set({ counts: merged });
+      }
+    }
   },
 
   createProfile: async ({ slug, avatar, favTeam, pin }) => {
@@ -98,10 +115,34 @@ export const useStore = create<State>((set, get) => ({
       recoveryHash: await sha256(recoveryCode),
       createdAt: Date.now(),
     };
+    // Cria a conta no backend (se ligado). Se o apelido já existir, NÃO prossegue.
+    const { error } = await backendSignUp(profile, pin);
+    if (error) return { recoveryCode, error };
     // Persiste mas NÃO ativa ainda: o onboarding continua (recuperação + tutorial)
     // até refreshProfile() ser chamado no fim, evitando trocar de tela cedo demais.
     await kvSet('profile', profile);
-    return { recoveryCode };
+    await pushAll(get().counts); // sobe o que já estiver marcado localmente
+    return { recoveryCode, error: null };
+  },
+
+  login: async (slug, pin) => {
+    const { error, row } = await backendLogIn(slug, pin);
+    if (error || !row) return { error: error ?? 'Não foi possível entrar.' };
+    const profile: Profile = {
+      slug: row.slug,
+      displayName: row.display_name,
+      avatar: row.avatar,
+      favTeam: row.fav_team,
+      pinHash: await sha256(`${row.display_name}:${pin}`),
+      recoveryHash: row.recovery_hash ?? '',
+      createdAt: Date.now(),
+    };
+    await kvSet('profile', profile);
+    // baixa a coleção do servidor para este aparelho
+    const remote = await pullCollection();
+    for (const [id, c] of Object.entries(remote)) await setStickerCount(Number(id), c);
+    set({ profile, counts: remote, locked: false });
+    return { error: null };
   },
 
   refreshProfile: async () => {
@@ -144,6 +185,7 @@ export const useStore = create<State>((set, get) => ({
   },
 
   resetAll: async () => {
+    await backendLogout();
     await db.delete();
     await db.open();
     set({ profile: null, locked: false, counts: {}, settings: DEFAULT_SETTINGS });
@@ -159,6 +201,7 @@ export const useStore = create<State>((set, get) => ({
       else counts[stickerId] = c;
       return { counts };
     });
+    void pushSticker(stickerId, c); // sincroniza com o servidor (no-op se offline/local)
   },
 
   toggleHave: async (stickerId) => {

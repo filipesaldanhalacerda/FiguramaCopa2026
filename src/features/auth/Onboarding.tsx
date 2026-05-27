@@ -8,7 +8,8 @@ import { Icon } from '../../components/icons';
 import { Avatar, AVATARS, TeamBadge, Jersey } from '../../components/team';
 import { burstConfetti } from '../../lib/confetti';
 import { tapHaptic, popSound } from '../../lib/haptics';
-import { backendSignUp } from '../../lib/supabase';
+import { isBackendEnabled } from '../../lib/supabase';
+import Login from './Login';
 
 const NAME_IDEAS = ['CraqueDoBairro', 'ReiDasTrocas', 'Furacao10', 'Estrelinha', 'GoleadorBR'];
 
@@ -16,6 +17,7 @@ export default function Onboarding() {
   const createProfile = useStore((s) => s.createProfile);
   const refreshProfile = useStore((s) => s.refreshProfile);
   const nav = useNavigate();
+  const [mode, setMode] = useState<'signup' | 'login'>('signup');
   const [step, setStep] = useState(0);
   const [slug, setSlug] = useState('');
   const [pin, setPin] = useState('');
@@ -23,17 +25,24 @@ export default function Onboarding() {
   const [avatar, setAvatar] = useState(AVATARS[0].id);
   const [favTeam, setFavTeam] = useState('BRA');
   const [recovery, setRecovery] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
 
   const totalSteps = 6;
 
   async function finishCreate() {
-    const { recoveryCode } = await createProfile({ slug, avatar, favTeam, pin });
+    setBusy(true);
+    setErr('');
+    const { recoveryCode, error } = await createProfile({ slug, avatar, favTeam, pin });
+    setBusy(false);
+    if (error) { setErr(error); setStep(1); setPin(''); setPin2(''); return; }
     setRecovery(recoveryCode);
-    await backendSignUp(slug, pin).catch(() => {});
     burstConfetti();
     popSound();
     setStep(5);
   }
+
+  if (mode === 'login') return <Login onBack={() => setMode('signup')} />;
 
   return (
     <div className="mx-auto min-h-[100svh] max-w-md px-5 pb-8 pt-6 safe-top flex flex-col">
@@ -49,11 +58,12 @@ export default function Onboarding() {
         <motion.div key={step} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
           transition={{ duration: 0.25 }} className="flex-1 flex flex-col">
 
-          {step === 0 && <Welcome onNext={() => setStep(1)} />}
+          {step === 0 && <Welcome onNext={() => setStep(1)} onLogin={isBackendEnabled ? () => setMode('login') : undefined} />}
 
           {step === 1 && (
             <Step title="Como te chamam?" hint="Escolha um apelido divertido. Nada de nome completo, combinado?">
-              <input autoFocus value={slug} onChange={(e) => setSlug(e.target.value.slice(0, 18))} placeholder="seu apelido"
+              {err && <p className="mb-3 rounded-lg bg-[var(--color-magenta)]/10 px-3 py-2 text-sm font-700 text-[var(--color-magenta)]">{err}</p>}
+              <input autoFocus value={slug} onChange={(e) => { setSlug(e.target.value.slice(0, 18)); setErr(''); }} placeholder="seu apelido"
                 className="w-full rounded-xl border-2 border-line bg-paper px-5 py-4 text-xl font-700 outline-none focus:border-brand-400" />
               <div className="mt-3 flex flex-wrap gap-2">
                 {NAME_IDEAS.map((n) => (
@@ -108,7 +118,7 @@ export default function Onboarding() {
                 ))}
               </div>
               <Spacer />
-              <Button full size="lg" onClick={finishCreate}>Começar a trocar</Button>
+              <Button full size="lg" disabled={busy} onClick={finishCreate}>{busy ? 'Criando conta…' : 'Começar a trocar'}</Button>
             </Step>
           )}
 
@@ -120,7 +130,7 @@ export default function Onboarding() {
   );
 }
 
-function Welcome({ onNext }: { onNext: () => void }) {
+function Welcome({ onNext, onLogin }: { onNext: () => void; onLogin?: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center">
       <motion.div animate={{ y: [0, -8, 0] }} transition={{ repeat: Infinity, duration: 3 }}
@@ -134,6 +144,9 @@ function Welcome({ onNext }: { onNext: () => void }) {
       <div className="mt-8 w-full">
         <Button full size="lg" onClick={onNext}>Bora começar</Button>
         <p className="mt-3 text-sm text-ink-soft font-600">Sem e-mail e sem senha complicada. É rapidinho.</p>
+        {onLogin && (
+          <button onClick={onLogin} className="mt-4 font-700 text-brand-600">Já tenho conta · Entrar</button>
+        )}
       </div>
     </div>
   );
