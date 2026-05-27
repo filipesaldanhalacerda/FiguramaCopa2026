@@ -81,9 +81,10 @@ export default function MyList() {
       </div>
 
       {tab === 'dupe' && totalDupes > 0 && (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <Button variant="soft" onClick={() => { tapHaptic('pop'); setTv(true); }}><Icon name="expand" size={18} /> Tela cheia</Button>
-          <Button onClick={doShare}><Icon name="share" size={18} /> Compartilhar</Button>
+          <Button variant="navy" onClick={() => { tapHaptic('pop'); setShare(true); }}><Icon name="qr" size={18} /> QR Code</Button>
+          <Button onClick={doShare}><Icon name="share" size={18} /> Enviar</Button>
         </div>
       )}
 
@@ -150,6 +151,9 @@ export default function MyList() {
             <input readOnly value={url} className="flex-1 rounded-lg border-2 border-line bg-page px-3 py-3 font-600 text-sm" />
             <Button onClick={() => { navigator.clipboard?.writeText(shareText()); tapHaptic('success'); }}>Copiar</Button>
           </div>
+          {typeof navigator !== 'undefined' && 'share' in navigator && (
+            <Button full variant="soft" onClick={doShare}><Icon name="share" size={18} /> Enviar pelo WhatsApp / apps</Button>
+          )}
           <p className="text-center text-xs text-ink-soft">Sua lista pública mostra só apelido, avatar e números — nada de dados pessoais.</p>
         </div>
       </Sheet>
